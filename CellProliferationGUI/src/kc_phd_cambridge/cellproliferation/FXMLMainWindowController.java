@@ -5,11 +5,14 @@
  */
 package kc_phd_cambridge.cellproliferation;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 
 
@@ -32,16 +35,13 @@ public class FXMLMainWindowController
     private RadioButton sexRadioButtonF;
     @FXML
     private RadioButton sexRadioButtonM;
-    
     @FXML
     private RadioButton organismRadioButtonHum;
     @FXML
     private RadioButton organismRadioButtonMou;
     @FXML
     private RadioButton organismRadioButtonTest;
-    
     final ToggleGroup organismGroup = new ToggleGroup();
-    
     @FXML
     private TextField initPopSizeField;
     @FXML
@@ -66,10 +66,12 @@ public class FXMLMainWindowController
     @FXML
     private void handleAddSimulationButtonEvent(ActionEvent event) 
     {
-        // TODO
-        // 1. Perform validation on each data entry field
-        // 2. Write input data to a row in the input data array
-        // 3. Based on which option has been selected, wipe input field
+      // TODO
+      // 1. Perform validation on each data entry field
+      // 2. Write input data to a row in the input data array
+      if(organismRadioButtonHum.isSelected())
+      System.out.println("HUMAN!!!!!");
+      // 3. Based on which option has been selected, wipe input field
     }
     
     // Evaluate this code when a user decides to run simulations from the data 
