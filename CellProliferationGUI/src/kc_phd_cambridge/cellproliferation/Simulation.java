@@ -11,9 +11,16 @@ package kc_phd_cambridge.cellproliferation;
  */
 public class Simulation implements Runnable
 {
+  private SimulationData input_parameters;
+  
+  // Constructor receives a SimulationData object
+  public Simulation(SimulationData new_inputs) 
+  {
+    this.input_parameters = new_inputs;
+  }
     @Override
     public void run()
     {
-       System.out.println("MyRunnable running");
+       System.out.println("MyRunnable running =>" + input_parameters.toString() );
     }
 }

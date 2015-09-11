@@ -6,17 +6,21 @@
 package kc_phd_cambridge.cellproliferation;
 
 /**
- *
+ * Stores input parameters used to create and run a new Simulation.
+ * Stores parameters provided by the user and is passed to the Simulation
+ * object's constructor upon initiation of said object.
+ * 
+ * @see kc_phd_cambridge.cellproliferation.Simulation
  * @author Kyata Chibalabala
  */
 public class SimulationData 
 {
   // Instance variables
-  private String organism, sex;
-  private int initial_population_size, simulation_duration, time_interval;
+  final String organism;
+  final int sex, initial_population_size, simulation_duration, time_interval;
   
   // Constructor
-  public SimulationData(String new_org, String new_sex, int new_init_pop_size, int new_sim_dur, int new_interval)
+  public SimulationData(String new_org, int new_sex, int new_init_pop_size, int new_sim_dur, int new_interval)
   {  
     this.organism = new_org;
     this.sex = new_sex;
@@ -25,4 +29,10 @@ public class SimulationData
     this.time_interval = new_interval;    
   }// Constructor
   
+  // Helper methods
+  @Override
+  public String toString()
+  {
+    return "" + this.organism + " " + this.sex + " " + this.initial_population_size + " " + this.simulation_duration + " "+ this.time_interval; 
+  }
 }
