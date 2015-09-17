@@ -15,14 +15,10 @@
  */
 package kc_phd_cambridge.cellproliferation;
 
-import java.util.ArrayList;
-import java.util.List;
-import javafx.event.ActionEvent;
+import java.util.*;
+import javafx.event.*;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 
 
 /**
@@ -32,7 +28,7 @@ import javafx.scene.control.ToggleGroup;
  * 
  * Takes validated user input(s) and stores them in an ArrayList as a set  
  * containing unique SimulationData objects. For each SimulatedData object in 
- * the ArrayList, a new thread is created and a Simulation instances begins.
+ * the ArrayList, a new thread is created and a Simulation evaluated.
  * 
  * @see Simulation
  * @see SimulationData
@@ -51,14 +47,15 @@ public class FXMLMainWindowController
   private TextField initPopSizeField, simDurationField, timeIntervalField;
   @FXML
   private ToggleGroup organismToggleGroup, sexToggleGroup; // Toggle groups to make mutually exclusive selevtions for organism and sex
-  
-  final int FEMALE = 1, MALE = 2; // "enum" for sex
+  @FXML
+  private TextArea outputTextArea;
+  private final int FEMALE = 1, MALE = 2; // "enum" for sex
   private boolean organism_input_valid = false, sex_input_valid = false, init_pop_input_valid = false, sim_dur_input_valid = false, interval_input_valid = false;
          
   
   // An array list to store the input data for each unique simulation
   List<SimulationData> input_data_for_simulations = new ArrayList<>();
-
+  
   /** 
    * Verifies input data when the user decides to create a SimulationData object
    * by activating the ****????? button.
@@ -84,7 +81,6 @@ public class FXMLMainWindowController
 
     // TODO
     // 1. Perform validation on each data entry field
-    // 2. Write input data to a row in the input data array
 
     // Extract organism information froim user input
     if(organismRadioButtonHum.isSelected())

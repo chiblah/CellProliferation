@@ -16,18 +16,19 @@
 package kc_phd_cambridge.cellproliferation;
 
 /**
- * Stores input parameters used to create and run a new Simulation.
- * Stores parameters provided by the user and is passed to the Simulation
- * object's constructor upon initiation of said object.
+ * Class for the storage of user input parameters.
+ * 
+ * Stores parameters provided by the user via the user interface and is passed 
+ * to the Simulation object's constructor upon initiation of said object.
  * 
  * @see kc_phd_cambridge.cellproliferation.Simulation
  * @author Kyata Chibalabala
  */
 public class SimulationData 
 {
-  // Instance variables
-  final String organism;
-  final int sex, initial_population_size, simulation_duration, time_interval;
+  // Instance variable
+  private final String organism;
+  private final int sex, initial_population_size, simulation_duration, time_interval;
   
   // Constructor
   public SimulationData(String new_org, int new_sex, int new_init_pop_size, int new_sim_dur, int new_interval)
@@ -39,10 +40,66 @@ public class SimulationData
     this.time_interval = new_interval;    
   }// Constructor
   
-  // Helper methods
+  //*** Access methods ***//
+  
+  /**
+   * Provides read access to the 'organism' value stored in this input parameter set
+   *
+   * @return the value of 'organism'. 
+   */
+  public String getOrganism()
+  {
+    return this.organism;
+  }// getOrganism
+  
+  /**
+   * Provides read access to the 'sex' value stored in this input parameter set
+   *
+   * @return the value of 'sex'.  
+   */
+  public int getSex()
+  {
+    return this.sex;
+  }// getSex
+  
+  /**
+   * Provides read access to the 'initial population size' value stored in this input parameter set
+   *
+   * @return the value of 'initial population size'.
+   */
+  public int getInitialPopulationSize()
+  {
+    return this.initial_population_size;
+  }// getInitialPopulationSize
+  
+  /**
+   * Provides read access to the 'simulation duration' value stored in this input parameter set
+   *
+   * @return the value of 'simulation duration'.
+   */
+  public int getSimulationDuration()
+  {
+    return this.simulation_duration;
+  }// getSimulationDuration
+  
+  /**
+   * Provides read access to the 'time interval' value stored in this input parameter set
+   *
+   * @return the value of 'time interval'.
+   */
+  public int getTimeInterval()
+  {
+    return this.time_interval;
+  }// getTimeInterval
+  
+  /**
+   * Provide read access to a string representation of this input parameter set
+   *
+   * @return a string representation of the entire input parameter set.
+   */
   @Override
   public String toString()
   {
     return "" + this.organism + " " + this.sex + " " + this.initial_population_size + " " + this.simulation_duration + " "+ this.time_interval; 
-  }
+  }// toString
 }

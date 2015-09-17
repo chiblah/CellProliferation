@@ -16,8 +16,10 @@
 package kc_phd_cambridge.cellproliferation;
 
 /**
- * Class for a Cell object with variables for the various properties of each 
- * cell and methods to gain access or change the values of select variables.
+ * Class for a Cell object.
+ * 
+ * Store the variables for the various properties of each cell as well as
+ * methods to gain read or modify the values of editable variables.
  * 
  * @author Kyata Chibalabala
  */
@@ -28,11 +30,11 @@ public class Cell
 	private int cell_gen; // Track the generation the cell belongs to
 	private double last_div; // The last time this cell completed M-phase. Initially set to the timepoint it was created
 	private boolean can_divide; // Indicates the state of the cell, true if cell is at G2 and can divide
-  private int[][][] genome;
+  private double[][][] genome;
   private int generation_number;
 	
-    // Constructor
-	public Cell(int new_id, int new_gen, double provided_last_div, boolean division_status, int[][][] provided_genome)
+  // Constructor
+	public Cell(int new_id, int new_gen, double provided_last_div, boolean division_status, double[][][] provided_genome)
 	{
 		this.cell_id = new_id;
 		this.cell_gen = new_gen;
@@ -42,7 +44,7 @@ public class Cell
 		
 	}// Constructor
 	
-	// Class methods
+	//*** Access methods ***//
 	
 	/**
    * Allows the division status of this cell to be changed to true or false
@@ -66,7 +68,7 @@ public class Cell
 	}// getDivisionStatus
 	
   /**
-   * Provides access to the unique ID of this cell
+   * Provides read access for the unique ID of this cell
    *
    * @return the cellId of this cell object
    */
@@ -76,7 +78,7 @@ public class Cell
   }// getId
     
   /**
-   * Provides access to the generation number of this cell
+   * Provides read access for the generation number of this cell
    *
    * @return the generation of cells that this cell belongs to
    */
@@ -86,7 +88,7 @@ public class Cell
 	}// getGen
 	
 	/**
-   * Enables changing of the generation number of this cell 
+   * Allows the generation number of this cell to be changed
    *
    * @param new_generation the generation of cells that this cell now belongs to
    */
@@ -96,21 +98,21 @@ public class Cell
 	}// setGen
     
   /**
-   * Provides access to the the diploid genome of this cell
+   * Provides read access for the diploid genome of this cell
    *
    * @return  the genome of this cell
    */
-  public int[][][] getGenome()
+  public double[][][] getGenome()
   {
       return this.genome;
   }// getGenome
     
   /**
-   * Enables a new diploid genome to be set for this cell
+   * Allows the diploid genome of this cell to be changed
    *
    * @param new_genome the new genome object that this cell will now carry
    */
-  public void setGenome(int[][][] new_genome)
+  public void setGenome(double[][][] new_genome)
   {
     this.genome = new_genome;
   }// setGenome
@@ -121,6 +123,7 @@ public class Cell
    *
    * @return newStr a String representation of key information about this cell object
    */
+  @Override
 	public String toString()
 	{
     String newStr = "Cell ID = " + this.cell_id + "; Generation = " + this.cell_gen; // + "; Last division timepoint = "+ this.last_div + " Division status = " + can_divide;
