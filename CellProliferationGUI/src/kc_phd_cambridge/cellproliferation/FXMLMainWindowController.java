@@ -15,30 +15,35 @@
  */
 package kc_phd_cambridge.cellproliferation;
 
+import java.io.File;
 import java.util.*;
 import javafx.event.*;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
 
 
 /**
  * Main class responsible for drawing and controlling the user interface,
- * receiving input data from the user and creating threads on which separate
- * instances of Simulations are run.
+ * receiving input data from the user, storing this data in SimulationData 
+ * objects and creating threads on which separate instances of Simulations are 
+ * run.
  * 
  * Takes validated user input(s) and stores them in an ArrayList as a set  
  * containing unique SimulationData objects. For each SimulatedData object in 
  * the ArrayList, a new thread is created and a Simulation evaluated.
  * 
+ * @author Kyata Chibalabala
+ * @see GenomeData
  * @see Simulation
  * @see SimulationData
- * @author Kyata Chibalabala
  */
 public class FXMLMainWindowController  
 { 
   // FXML variables for GUI objects
   @FXML
-  private Button addSimulationButton, beginSimulationButton;
+  private Button addSimulationButton, beginSimulationButton, changeGenomeDataFileButton;
   @FXML
   private RadioButton sexRadioButtonF, sexRadioButtonM; // Sex radio buttons
   @FXML
@@ -49,18 +54,24 @@ public class FXMLMainWindowController
   private ToggleGroup organismToggleGroup, sexToggleGroup; // Toggle groups to make mutually exclusive selevtions for organism and sex
   @FXML
   private TextArea outputTextArea;
-  private final int FEMALE = 1, MALE = 2; // "enum" for sex
   private boolean organism_input_valid = false, sex_input_valid = false, init_pop_input_valid = false, sim_dur_input_valid = false, interval_input_valid = false;
-         
+  
+  public static final boolean CLEAR = true, DONT_CLEAR = false;    
+  public static final String new_line = System.lineSeparator();
   
   // An array list to store the input data for each unique simulation
-  List<SimulationData> input_data_for_simulations = new ArrayList<>();
+  private final List<SimulationData> input_data_for_simulations = new ArrayList<>();
+  
+  // Get the path of the Genome Data file and store the data from the file in a 
+  // GenomeData object
+  private File genome_data_file = CellProliferationGUI.getGenomeDataFile();
+  GenomeData genome_data = new GenomeData(genome_data_file);
   
   /** 
-   * Verifies input data when the user decides to create a SimulationData object
-   * by activating the ****????? button.
+   * Evaluated when the user decides to add a simulation dataset to the queue.
    * 
-   * Each unique input data field is verified and a SimulationData object is
+   * Verifies input data when the user decides to create a SimulationData object
+   * by pushing the Add Dataset to Queue button. Each unique input data field is verified and a SimulationData object is
    * created and stored if and only if all input fields contain valid data.
    * 
    * @param temp_organism the organism provided by the user. Empty string if none received (invalid input).
@@ -68,6 +79,7 @@ public class FXMLMainWindowController
    * @param temp_initial_population_size the initial population size provided by the user. 0 if none received (invalid input).
    * @param temp_simulation_duration the duration of the simulation as provided by the user. 0 if none received (invalid input).
    * @param temp_time_interval the time interval provided by the user. 0 if none received (invalid input).
+   * @see SimulationData
    */
   @FXML
   private void handleAddSimulationButtonEvent(ActionEvent event) 
@@ -78,6 +90,7 @@ public class FXMLMainWindowController
     String temp_organism = "";
     int temp_sex = 0, temp_initial_population_size = 0, temp_simulation_duration = 0, temp_time_interval = 0;
 
+    StringBuilder validation_message = new StringBuilder();// Store validation messages
 
     // TODO
     // 1. Perform validation on each data entry field
@@ -101,28 +114,24 @@ public class FXMLMainWindowController
     else
     {
       organism_input_valid = false;
-      // TODO 
-      // Warn the user that they have not selected an organism! (Or set a default)
-      System.out.println("Unable to proceed, no organism selected!!!");
+      validation_message.append("No organism selected.").append(new_line);
     }
 
     // Extract sex information from user input
     if(sexRadioButtonF.isSelected())
     {
-      temp_sex = FEMALE;
+      temp_sex = Simulation.FEMALE;
       sex_input_valid = true;
     }
     else if(sexRadioButtonM.isSelected())
     {
-      temp_sex = MALE;
+      temp_sex = Simulation.MALE;
       sex_input_valid = true;
     }
     else
     {
       sex_input_valid = false;
-      // TODO => GUI error message
-      // Warn the user that they have not selected a sex! (Or set a default)
-      System.out.println("Unable to proceed, no sex selected!!!");
+      validation_message.append("No sex selected.").append(new_line);
     }
 
     // Extract population size from user input
@@ -133,9 +142,7 @@ public class FXMLMainWindowController
     }else
     {
       init_pop_input_valid = false;
-      // TODO => GUI error message
-      // Warn the user that they have not entered a population size
-      System.out.println("Unable to proceed, no population size provided");
+      validation_message.append("No population size provided.").append(new_line);
     }
 
     // Extract simulation duration from user input
@@ -146,9 +153,7 @@ public class FXMLMainWindowController
     }else
     {
       sim_dur_input_valid = false;
-      // TODO => GUI error message
-      // Warn the user that they have not entered a value for simulation duration
-      System.out.println("Unable to proceed, no simulation duration provided");
+      validation_message.append("No simulation duration provided.").append(new_line);
     }
 
     // Extract time interval from user input
@@ -159,9 +164,7 @@ public class FXMLMainWindowController
     }else
     {
       interval_input_valid = false;
-      // TODO => GUI error message
-      // Warn the user that they have not entered a value for the time interval
-      System.out.println("Unable to proceed, no time interval provided");
+      validation_message.append("No time interval provided.").append(new_line);
     }
 
     // Create a SimulationData object from the temp values and add it to the 
@@ -169,22 +172,30 @@ public class FXMLMainWindowController
     if(organism_input_valid && sex_input_valid && init_pop_input_valid && sim_dur_input_valid && interval_input_valid)
     {
       input_data_for_simulations.add(new SimulationData(temp_organism, temp_sex, temp_initial_population_size, temp_simulation_duration, temp_time_interval));
-      System.out.println("Success! Dataset has been added to the list of simulations to run");
+      printToTextArea(FXMLMainWindowController.DONT_CLEAR,"Success! Dataset has been added to the list of simulations." + new_line + input_data_for_simulations.get(input_data_for_simulations.size() - 1).toString() + new_line + new_line);
     }
     else
-      System.out.println("Sorry, this dataset was not added as there exists =< 1 incorrect inputs");
-// 3. Based on which option has been selected, wipe input field
-  }
+      validation_message.insert(0,"Sorry, this dataset was not added as there exists  =< 1  incorrect inputs" + new_line + new_line+ "ERRORS: " + new_line);
+    
+    // If validation errors present, display them in an alert box
+    if(!validation_message.toString().isEmpty())
+      CellProliferationGUI.displayAlert("INVALID INPUTS!", validation_message.toString());
+    // 3. Based on which option has been selected, wipe input field
+  }// handleAddSimulationButtonEvent
 
   
   /** 
-   * Creates threads on which Simulations are performed from user input data.
+   * Evaluated when the user chooses to run simulations from the data they have 
+   * provided. 
    * 
+   * Creates threads on which Simulations are performed from user input data. 
    * Goes through the list of SimulationData objects and for each object, passes
    * the SimulationData object to a Simulation object's constructor which then
    * initiates and performs the simulation.
    * 
-   * @param input_data_for_simulations the list of SimulationData objects stored in an ArrayList
+   * @param input_data_for_simulations the list of SimulationData objects stored
+   * in an ArrayList.
+   * @see Simulation
    */
   @FXML
   private void handleBeginSimulationEvent(ActionEvent event) 
@@ -195,13 +206,32 @@ public class FXMLMainWindowController
     //    to run a simulation object.
     // Go through each element in the input_data_for_simulations array and create
     // a
-    for (SimulationData current_simulation_input_dataset : input_data_for_simulations) 
-    {  
-      Thread thread = new Thread(new Simulation(current_simulation_input_dataset));
+    //3 Exception handling => No file chosen, no simulation data added.
+    input_data_for_simulations.stream().map((current_simulation_input_dataset) -> new Thread(new Simulation(current_simulation_input_dataset))).forEach((thread) -> 
+    {
       thread.start();
       //System.out.println(current_simulation_input_dataset.toString());
-    }
+    });
+  }// handleBeginSimulationEvent
 
-  }
-    
+  /** 
+   * Evaluated when the user selects a new Genome Data file to replace the one 
+   * selected when the program is first executed.
+   * 
+   * @param genome_data_file the new Genome Data file.
+   * @see GenomeData
+   */
+  @FXML
+  private void handleChangeGenomeDataFileButtonEvent(ActionEvent event) 
+  {
+    genome_data_file = CellProliferationGUI.getGenomeDataFile();
+  }//handleChangeGenomeDataFileButtonEvent  
+  
+  private void printToTextArea(boolean clear_contents, String contents)
+  {
+    // Clear the contents of the text area if required
+    if(clear_contents)
+      outputTextArea.clear();
+    outputTextArea.appendText(contents); // Add string to the text area
+  }// printToTextArea
 }

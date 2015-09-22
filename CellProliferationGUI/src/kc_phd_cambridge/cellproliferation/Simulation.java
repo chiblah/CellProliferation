@@ -15,8 +15,6 @@
  */
 package kc_phd_cambridge.cellproliferation;
 
-import java.io.*;
-import java.lang.Math.*;
 import java.util.*;
 
 /**
@@ -26,14 +24,14 @@ import java.util.*;
 public class Simulation implements Runnable
 {
   // Instance variables
-  private static final int FEMALE = 1, MALE = 2; // "enums"
+  public static final int FEMALE = 1, MALE = 2; // "enums"
   private static final double STRAND_FULLY_LABELLED = 1.0, STRAND_UNLABELLED = 0.0;
   private static final boolean CAN_DIVIDE = true, CANT_DIVIDE = false;
   
-  private static int current_timepoint = 0; // Track the current time in this simulation, initialise at 0.
-	private static int newest_generation = -1; // Keep track of the most recent generation of cells
-	private static int id_of_last_created_cell = -1; // The cell ID of the last cell that was created. Tracked to set the ID of the next cell to be created. 
-  private static int haploid_number = 2; // TODO: Set this value dynamically!!!!!!**********
+  private int current_timepoint = 0; // Track the current time in this simulation, initialise at 0.
+	private int newest_generation = -1; // Keep track of the most recent generation of cells
+	private int id_of_last_created_cell = -1; // The cell ID of the last cell that was created. Tracked to set the ID of the next cell to be created. 
+  private int haploid_number = 2; // TODO: Set this value dynamically!!!!!!**********
   
   // Instance variables passed to constructor
   private final SimulationData input_parameters;
@@ -57,6 +55,7 @@ public class Simulation implements Runnable
    simulation_duration = input_parameters.getSimulationDuration();
    time_interval = input_parameters.getTimeInterval();
   }
+  
   @Override
   public void run()
   {
@@ -80,7 +79,7 @@ public class Simulation implements Runnable
     /**
      * Creates and returns an empty three dimensional array to store a diploid genome.
      */
-    private static double[][][] newEmptyDiploidGenome()
+    private double[][][] newEmptyDiploidGenome()
     {
       double[][][] diploid_genome = new double[haploid_number][2][2]; // The karyotype of the cell, 3 dimensional array to store discrete values for each  chromosome -> each homologous pair of chromosomes -> 2 complementary DNA strands
       return diploid_genome;
@@ -90,7 +89,7 @@ public class Simulation implements Runnable
      * Creates and returns an array list of the initial population of cells.
      * The total number of cells in the population is determined by the integer 'population_size'
      */
-    private static List<Cell> initiatePopulation(int required_population_size)
+    private List<Cell> initiatePopulation(int required_population_size)
     {
       List<Cell> population = new ArrayList<>(); //Define an arraylist to hold the initial population of cells
       double[][][] diploid_genome = newEmptyDiploidGenome();

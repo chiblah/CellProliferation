@@ -100,6 +100,7 @@ public class SimulationData
   @Override
   public String toString()
   {
-    return "" + this.organism + " " + this.sex + " " + this.initial_population_size + " " + this.simulation_duration + " "+ this.time_interval; 
+    String sex = this.sex == 1 ? "Female" : "Male";
+    return "Oganism: " + this.organism + ", Sex: " + sex + ", Initial Population Size: " + this.initial_population_size + ", Simulation Duration: " + this.simulation_duration + ", Time Interval: "+ this.time_interval; 
   }// toString
-}
+}// SimulationData
