@@ -26,6 +26,7 @@ import java.util.List;
 public class GenomeData 
 {
   // Class variables
+  private static boolean successfull_genome_import = false;
   private static File genome_data_file;
   private static List<String> genome_data; 
   
@@ -39,19 +40,27 @@ public class GenomeData
 	{
     genome_data = new ArrayList<>();
 		genome_data_file = new_genome_data_file;
-    importGenomeData(genome_data_file);
+    
+    if(importGenomeData(genome_data_file))
+    {
+      successfull_genome_import = true;
+    }else// Import was unsuccessful
+    {
+      successfull_genome_import = false;
+    }
 	}// Constructor
 
-  public static void importGenomeData(File received_genome_data_file)
+  private static boolean importGenomeData(File received_genome_data_file)
   {
-    // Begin by changing the genome data file to the newly provided file.
-    // This is redundant if the method is called from the constructor object but
-    // is necessary if the user changes the initially selected Genome Data file
-    // which necessitates rerunning of the import code
-    genome_data_file = received_genome_data_file;
     
-    // TODO: Perform import of ALL data
+    return true;
+    // TODO: Perform import of ALL data and return true if successful or false if not
   }// importGenomeData
   
   // TODO: Access method for organism and sex specific chromosome sizes
+
+  boolean getImportStatus() 
+  {
+    return successfull_genome_import;
+  }
 }// GenomeData

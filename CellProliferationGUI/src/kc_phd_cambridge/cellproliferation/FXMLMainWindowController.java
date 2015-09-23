@@ -20,8 +20,7 @@ import java.util.*;
 import javafx.event.*;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.stage.FileChooser;
-import javafx.stage.Window;
+import static kc_phd_cambridge.cellproliferation.CellProliferationGUI.displayAlert;
 
 
 /**
@@ -43,7 +42,7 @@ public class FXMLMainWindowController
 { 
   // FXML variables for GUI objects
   @FXML
-  private Button addSimulationButton, beginSimulationButton, changeGenomeDataFileButton;
+  private Button addSimulationButton, beginSimulationButton, chooseGenomeDataFileButton;
   @FXML
   private RadioButton sexRadioButtonF, sexRadioButtonM; // Sex radio buttons
   @FXML
@@ -56,16 +55,16 @@ public class FXMLMainWindowController
   private TextArea outputTextArea;
   private boolean organism_input_valid = false, sex_input_valid = false, init_pop_input_valid = false, sim_dur_input_valid = false, interval_input_valid = false;
   
-  public static final boolean CLEAR = true, DONT_CLEAR = false;    
+  public static final boolean CLEAR_CONTENT = true, DONT_CLEAR_CONTENTS = false; // Whether to clear the contents of the TextArea   
   public static final String new_line = System.lineSeparator();
   
   // An array list to store the input data for each unique simulation
   private final List<SimulationData> input_data_for_simulations = new ArrayList<>();
   
-  // Get the path of the Genome Data file and store the data from the file in a 
-  // GenomeData object
-  private File genome_data_file = CellProliferationGUI.getGenomeDataFile();
-  GenomeData genome_data = new GenomeData(genome_data_file);
+  // Get the location of the Genome Data file and declare a variable to store a 
+  // corresponding GenomeData object 
+  private File genome_data_file;
+  GenomeData genome_data; 
   
   /** 
    * Evaluated when the user decides to add a simulation dataset to the queue.
@@ -172,14 +171,16 @@ public class FXMLMainWindowController
     if(organism_input_valid && sex_input_valid && init_pop_input_valid && sim_dur_input_valid && interval_input_valid)
     {
       input_data_for_simulations.add(new SimulationData(temp_organism, temp_sex, temp_initial_population_size, temp_simulation_duration, temp_time_interval));
-      printToTextArea(FXMLMainWindowController.DONT_CLEAR,"Success! Dataset has been added to the list of simulations." + new_line + input_data_for_simulations.get(input_data_for_simulations.size() - 1).toString() + new_line + new_line);
+      String to_print = "The simulation dataset has been successfuly added to the list of simulations." + new_line + input_data_for_simulations.get(input_data_for_simulations.size() - 1).toString() + new_line + new_line;
+      printToTextArea(DONT_CLEAR_CONTENTS,to_print);
+      //displayAlert("",to_print);
     }
     else
       validation_message.insert(0,"Sorry, this dataset was not added as there exists  =< 1  incorrect inputs" + new_line + new_line+ "ERRORS: " + new_line);
     
     // If validation errors present, display them in an alert box
     if(!validation_message.toString().isEmpty())
-      CellProliferationGUI.displayAlert("INVALID INPUTS!", validation_message.toString());
+      displayAlert("INVALID INPUTS!", validation_message.toString());
     // 3. Based on which option has been selected, wipe input field
   }// handleAddSimulationButtonEvent
 
@@ -205,31 +206,46 @@ public class FXMLMainWindowController
     // 2. For each unique row in the input data array, create a new thread
     //    to run a simulation object.
     // Go through each element in the input_data_for_simulations array and create
-    // a
+    
     //3 Exception handling => No file chosen, no simulation data added.
-    input_data_for_simulations.stream().map((current_simulation_input_dataset) -> new Thread(new Simulation(current_simulation_input_dataset))).forEach((thread) -> 
+    
+    // Verify that a genome data file has been successfully imported
+    if (genome_data != null && genome_data.getImportStatus()) 
     {
-      thread.start();
-      //System.out.println(current_simulation_input_dataset.toString());
-    });
+      input_data_for_simulations.stream().map((current_simulation_input_dataset) -> new Thread(new Simulation(current_simulation_input_dataset))).forEach((thread) ->
+      {
+        thread.start();
+      });
+    } else// Genome data import was not successful
+    {
+      displayAlert("ALERT!","Failed to import genome data file, check that you have selected a valid file." + new_line + "CUSTOM EXCEPTION ERROR MESSAGE FROM IMPORT METHOD IN GENOME DATA HERE");
+    }
   }// handleBeginSimulationEvent
 
   /** 
-   * Evaluated when the user selects a new Genome Data file to replace the one 
-   * selected when the program is first executed.
+   * Evaluated when the user selects a Genome Data file.
    * 
-   * @param genome_data_file the new Genome Data file.
+   * Takes a user selected file and imports the genome data into a GenomeData object
+   * 
+   * @param genome_data_file the selected file containing genome data.
+   * @param genome_data the GenomeData object created from the selected file
    * @see GenomeData
    */
   @FXML
-  private void handleChangeGenomeDataFileButtonEvent(ActionEvent event) 
+  private void handleChooseGenomeDataFileButtonEvent(ActionEvent event) 
   {
     genome_data_file = CellProliferationGUI.getGenomeDataFile();
+    genome_data = new GenomeData(genome_data_file); 
   }//handleChangeGenomeDataFileButtonEvent  
   
-  private void printToTextArea(boolean clear_contents, String contents)
+  /**
+   *
+   * @param clear_contents
+   * @param contents
+   */
+  public void printToTextArea(boolean clear_contents, String contents)
   {
-    // Clear the contents of the text area if required
+    // Clear the contents of the text area if specified
     if(clear_contents)
       outputTextArea.clear();
     outputTextArea.appendText(contents); // Add string to the text area

@@ -89,7 +89,7 @@
                   <RadioButton fx:id="organismRadioButtonTest" mnemonicParsing="false" text="Test" toggleGroup="$organismToggleGroup" />
                </children>
             </VBox>
-            <Button fx:id="changeGenomeDataFileButton" mnemonicParsing="false" onAction="#handleChangeGenomeDataFileButtonEvent" text="Change Genome Data File" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2">
+            <Button fx:id="chooseGenomeDataFileButton" mnemonicParsing="false" onAction="#handleChooseGenomeDataFileButtonEvent" text="Choose Genome Data File" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2">
                <font>
                   <Font size="10.0" />
                </font>

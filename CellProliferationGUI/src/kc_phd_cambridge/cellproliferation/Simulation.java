@@ -16,7 +16,10 @@
 package kc_phd_cambridge.cellproliferation;
 
 import java.util.*;
-
+import static kc_phd_cambridge.cellproliferation.CellProliferationGUI.displayAlert;
+import static kc_phd_cambridge.cellproliferation.FXMLMainWindowController.new_line;
+import static kc_phd_cambridge.cellproliferation.FXMLMainWindowController.CLEAR_CONTENT;
+import static kc_phd_cambridge.cellproliferation.FXMLMainWindowController.DONT_CLEAR_CONTENTS;
 /**
  *
  * @author Kyata Chibalabala
@@ -62,7 +65,9 @@ public class Simulation implements Runnable
     //Initialise a population to be used at the start of the simulation
     List<Cell> cell_population = initiatePopulation(initial_population_size); 
 
-    System.out.println("MyRunnable running =>" + input_parameters.toString() + " Population size = " + cell_population.size());
+    
+    //CANT DO THIS, HAVE TO DO ALL UI STUFF ON UI THREAD. FIND A WAY FOR THIS OBJECT TO RETURN A STRING WHEN DONE
+    //displayAlert("SIMULATION STARTED", new_line + "Running =>" + input_parameters.toString() + " Population size = " + cell_population.size()); 
   }
   
   //*** Helper methods ***//
