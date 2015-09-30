@@ -16,7 +16,10 @@
 package kc_phd_cambridge.cellproliferation;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.*;
+import java.util.function.Consumer;
 import javafx.event.*;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -64,7 +67,16 @@ public class FXMLMainWindowController
   // Get the location of the Genome Data file and declare a variable to store a 
   // corresponding GenomeData object 
   private File genome_data_file;
-  GenomeData genome_data; 
+
+  /**
+   * The array of entire genome data imported from a user selected genome data file.
+   * 
+   * Only one instance of this object is required by the program as the object 
+   * contains all genome data. Simulations call the {@link kc_phd_cambridge.cellproliferation.GenomeData#getGenomeData(String, int) getGenomeData}
+   * method in the GenomeData object to obtain chromosome sizes for a chosen organism and sex.
+   * 
+   */
+  public static GenomeData genome_data; 
   
   /** 
    * Evaluated when the user decides to add a simulation dataset to the queue.
@@ -207,18 +219,19 @@ public class FXMLMainWindowController
     //    to run a simulation object.
     // Go through each element in the input_data_for_simulations array and create
     
-    //3 Exception handling => No file chosen, no simulation data added.
+    //3 No simulation data added, button inactive
+    //4 Disable butto when simulation begins runnin, enable when complete.
     
     // Verify that a genome data file has been successfully imported
     if (genome_data != null && genome_data.getImportStatus()) 
     {
-      input_data_for_simulations.stream().map((current_simulation_input_dataset) -> new Thread(new Simulation(current_simulation_input_dataset))).forEach((thread) ->
+      input_data_for_simulations.stream().parallel().map((current_simulation_input_dataset) -> new Thread(new Simulation(current_simulation_input_dataset))).forEach((thread) ->
       {
         thread.start();
       });
     } else// Genome data import was not successful
     {
-      displayAlert("ALERT!","Failed to import genome data file, check that you have selected a valid file." + new_line + "CUSTOM EXCEPTION ERROR MESSAGE FROM IMPORT METHOD IN GENOME DATA HERE");
+      displayAlert("ALERT!","Failed to import genome data file, check that you have selected a valid genome data file.");
     }
   }// handleBeginSimulationEvent
 
@@ -234,8 +247,36 @@ public class FXMLMainWindowController
   @FXML
   private void handleChooseGenomeDataFileButtonEvent(ActionEvent event) 
   {
-    genome_data_file = CellProliferationGUI.getGenomeDataFile();
-    genome_data = new GenomeData(genome_data_file); 
+    try
+    {
+      genome_data_file = CellProliferationGUI.getGenomeDataFile();
+      genome_data = new GenomeData(genome_data_file);
+      
+      if(genome_data.getImportStatus())
+      {// Display success message
+      
+        String confirmation_title = "File Selection Confirmed";// Title of alert box
+        StringBuilder confirmation_contents = new StringBuilder();// Contents of alert box
+        
+        // Add some preamble to explain the message in the alert box
+        confirmation_contents.append("Newly selected Genome Data File: ").append(genome_data_file.getAbsoluteFile()).append(new_line).append(new_line).append("File contains the following header lines(s):").append(new_line);
+     
+        // Append the header lines to the message to be displayed, placing each on a new line
+        genome_data.getGetHaderLines().stream().forEach((String header_line) -> 
+        {
+          confirmation_contents.append(header_line).append(new_line);
+        });
+        
+        // Draw the alert box, with specified title and contents
+        displayAlert(confirmation_title, confirmation_contents.toString());
+      }else
+      {
+        displayAlert("ERROR", "Failed to import genome data file, check that you have selected a valid file.");
+      }
+    }catch(NullPointerException|IOException|ArrayIndexOutOfBoundsException error)
+    {
+      displayAlert("ERROR", "Failed to import genome data file, check that you have selected a valid file." + new_line +  "ERROR: " + error.getMessage() +new_line + "CAUSE:" + error.toString());
+    }// try catch  
   }//handleChangeGenomeDataFileButtonEvent  
   
   /**

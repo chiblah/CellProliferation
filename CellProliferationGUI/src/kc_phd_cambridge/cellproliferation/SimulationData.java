@@ -15,6 +15,9 @@
  */
 package kc_phd_cambridge.cellproliferation;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Class for the storage of user input parameters.
  * 
@@ -37,7 +40,8 @@ public class SimulationData
     this.sex = new_sex;
     this.initial_population_size = new_init_pop_size;
     this.simulation_duration = new_sim_dur;
-    this.time_interval = new_interval;    
+    this.time_interval = new_interval;
+    
   }// Constructor
   
   //*** Access methods ***//

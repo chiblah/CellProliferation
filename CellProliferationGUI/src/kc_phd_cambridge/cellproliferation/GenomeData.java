@@ -15,52 +15,194 @@
  */
 package kc_phd_cambridge.cellproliferation;
 
-import java.io.File;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Read a genome data file and and stores the size of each chromosome in an array
+ * list.
+ * 
+ * Each line stores the integer sizes of each chromosome pair, e.g for an 
+ * organism of haploid number = 3;
+ * 
+ *  chr1 133797422,133797422
+ *  chr2 242508799,242508799
+ *  XY   198450956,130786757  
+ * 
+ * The last line will have two different values for males (XY instead of XX).
+ * This is handled by specifying a sex of the organism to determine the 
+ * combination of the sex chromosomes. When imported into the list, the 'chr'
+ * chromosome identifier is discarded and array indices used to track chromosome
+ * number.
  *
  * @author Kyata Chibalabala
  */
 public class GenomeData 
 {
   // Class variables
-  private static boolean successfull_genome_import = false;
+  private static boolean successful_genome_import = false;
   private static File genome_data_file;
-  private static List<String> genome_data; 
+  private static List<String> all_genome_data_contents, header_lines; 
+  private static int haploid_number;
   
   /**
-  * Constructs a GenomeData object to store all Genome Data from a selected file
-  *
-  * @param new_genome_data_file The initial Genome Data file upon construction 
-  * of the object
-  */
-  public GenomeData(File new_genome_data_file)
+   * Constructs a GenomeData object used to store all Genome Data from a user 
+   * selected file.
+   *
+   * @param new_genome_data_file the File, selected by the user and passed to this constructor  
+   * @throws java.io.IOException
+   */
+  public GenomeData(File new_genome_data_file) throws IOException
 	{
-    genome_data = new ArrayList<>();
-		genome_data_file = new_genome_data_file;
+    // Garbage collection in case the user has previously created a GenomeData object
+    all_genome_data_contents = null;
+    header_lines = null;
+		genome_data_file = null;
     
-    if(importGenomeData(genome_data_file))
-    {
-      successfull_genome_import = true;
-    }else// Import was unsuccessful
-    {
-      successfull_genome_import = false;
-    }
+    all_genome_data_contents = new ArrayList<>();// Store the genome data in a list
+    header_lines = new ArrayList<>();// Separately store the headers found in the file
+		genome_data_file = new_genome_data_file;// The genome data file provided by the user
+ 
+    // Attempt to import the genome data file and note the boolean result of the attempt
+    successful_genome_import = importGenomeData(); 
 	}// Constructor
 
-  private static boolean importGenomeData(File received_genome_data_file)
-  {
-    
-    return true;
-    // TODO: Perform import of ALL data and return true if successful or false if not
-  }// importGenomeData
   
-  // TODO: Access method for organism and sex specific chromosome sizes
-
-  boolean getImportStatus() 
+  private static boolean importGenomeData() throws IOException, FileNotFoundException, ArrayIndexOutOfBoundsException
   {
-    return successfull_genome_import;
+    boolean no_glitches = false; 
+    try (BufferedReader genome_file_reader = new BufferedReader(new FileReader(genome_data_file))) 
+    {
+      String line;
+      
+      // Read all lines of the file into a List<String> object
+      while ((line = genome_file_reader.readLine()) != null)
+      {
+        if(line.isEmpty() || "".equals(line))// Empty lines will cause problems later so ignore them
+        {}
+        else// Not an empty line
+        {
+          String[] split_line = line.split(" ");
+          if(split_line[0].equals(">")) // If this is a header line
+          {
+            // Store the header line
+            header_lines.add(line);
+            no_glitches = true;// Dirty trick, accepts the provided file because a header line has been found. Will cause problems if user selects an invalid file that contins any line beginning with a '>' character
+          }
+          all_genome_data_contents.add(line); 
+        }  
+      }// while ((line = genome_file_reader.readLine()) != null)
+      genome_file_reader.close();
+    }// try
+    return no_glitches;
+  }// importGenomeData
+ 
+  /**
+   * Allows access to the boolean result of the genome data import operation.
+   * 
+   * Returns true if genome data import was successful and false if unsuccessful.
+   * 
+   * @return successful_genome_import whether the import operation was successful or not
+   */
+  public boolean getImportStatus() 
+  {
+    return successful_genome_import;
+  }// getImportStatus
+  
+  /**
+   * Provides access to a subset of the genome data.
+   * 
+   * Access to the chromosome sizes of a chosen organism, male or female.
+   * 
+   * @param target_organism the organism for which chromosome sizes are required.
+   * @param sex the combination of sex chromosome sizes to return, XX (female) or XY (male)
+   * @return genome_data_contents_subset the subset of genome data of the specified organism.
+   */
+  public List<String> getGenomeData(String target_organism, int sex)
+  {
+    List<String> genome_data_contents_subset = new ArrayList<>();
+    
+    // Used to determine what action to take when a header line is encountered; 
+    // close the file if true (a previous header has been encountered so this 
+    // must be the beginning of a new organism), keep reading if false
+    boolean found_target_organism = false;
+    
+    // True when the Y chromosome has been dealt with, for this to work the file 
+    // being imported has to have the Y chr line after not before the X chr line
+    boolean end_of_genome = false; 
+    // Evaluate each line imported from the file and add the chromosome sizes of 
+    // interest to the genome data subset array
+    
+    StringBuilder organism_name;
+    for(String chromosome_sizes : all_genome_data_contents) 
+    {
+      String[] split_line = chromosome_sizes.split(" ");
+      
+      if(split_line[0].equals(">")) // If this is a first header line
+      {
+        organism_name = new StringBuilder().append(split_line[1]).append(" ").append(split_line[2]); // Recreate the genus and species of the organism from the strings that were separated during the splitting of the line
+        if(organism_name.toString().equals(target_organism)) // If this line refers to the organism of interest
+        {
+          found_target_organism = true;
+          haploid_number = Integer.parseInt(split_line[4]); // Get the haploid number stored in the header line
+        }
+        else
+        {
+          found_target_organism = false;
+        }
+      }
+      else if(found_target_organism && !end_of_genome)// This is not a header line so we evaluate whether we want to import this line
+      {
+        //boolean autosome = true;
+        switch(sex)
+        {
+          case 1://Female
+          {
+            if(split_line[0].equals("chrX"))
+            {
+              genome_data_contents_subset.add(split_line[1] + "," + split_line[1]);
+            }
+            else if(split_line[0].equals("chrY"))
+            {
+              end_of_genome = true;
+            }// Ignore the Y chromosome
+            else
+              genome_data_contents_subset.add(split_line[1] + "," + split_line[1]);// The current line is an autosome
+          }break;
+          case 2://Male
+          {
+            if(split_line[0].equals("chrX"))
+            {
+              genome_data_contents_subset.add(split_line[1] + ",");
+            }
+            else if(split_line[0].equals("chrY"))
+            {
+              String temp = genome_data_contents_subset.get(genome_data_contents_subset.size() - 1); // Store the value already there
+              genome_data_contents_subset.remove(genome_data_contents_subset.size()-1);
+
+              temp = temp + split_line[1];
+              genome_data_contents_subset.add(temp);
+
+              end_of_genome = true;
+            }
+            else
+              genome_data_contents_subset.add(split_line[1] + "," + split_line[1]);// The current line is an autosome
+          }break;
+        }
+      }
+    }
+    return genome_data_contents_subset;
   }
+
+  /**
+   * Provides access to the header lines found in the imported genome data file.
+   * 
+   * Used to inform the user of the header lines in the genome file they have imported.
+   * @return header_lines the header lines present in the imported genome data file.
+   */
+  public List<String> getGetHaderLines() 
+  {
+    return header_lines; 
+  }// getGetHaderLines
 }// GenomeData

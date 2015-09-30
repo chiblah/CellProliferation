@@ -26,12 +26,11 @@ package kc_phd_cambridge.cellproliferation;
 public class Cell 
 {
   // Instance variables
-	private int cell_id; // A unique identifier for each cell
+	private final int cell_id; // A unique identifier for each cell
 	private int cell_gen; // Track the generation the cell belongs to
 	private double last_div; // The last time this cell completed M-phase. Initially set to the timepoint it was created
 	private boolean can_divide; // Indicates the state of the cell, true if cell is at G2 and can divide
   private double[][][] genome;
-  private int generation_number;
 	
   // Constructor
 	public Cell(int new_id, int new_gen, double provided_last_div, boolean division_status, double[][][] provided_genome)
@@ -40,8 +39,7 @@ public class Cell
 		this.cell_gen = new_gen;
 		this.last_div = provided_last_div;
 		this.can_divide = division_status;
-    this.genome = provided_genome;
-		
+    this.genome = provided_genome;	
 	}// Constructor
 	
 	//*** Access methods ***//
@@ -119,7 +117,7 @@ public class Cell
     
 	
 	/**
-   * Returns a string of key information about this cell
+   * Returns a string of key information about this cell.
    *
    * @return newStr a String representation of key information about this cell object
    */

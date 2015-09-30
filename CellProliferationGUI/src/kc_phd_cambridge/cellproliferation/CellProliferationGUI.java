@@ -58,26 +58,22 @@ public class CellProliferationGUI extends Application
     fileChooser.setTitle("Select a Genome_Data file");
     File selected_file = fileChooser.showOpenDialog(file_chooser_stage);
     
-    // Display a dialogue confirming the path of the selected file
-    String confirmation_title = "Confirmation of File Selection";
-    String confirmation_contents = "Newly selected Genome Data File: " + selected_file.getAbsoluteFile();
-    displayAlert(confirmation_title, confirmation_contents);
-    
     return selected_file;
   }// ChooseGenomeDataFile
   
   /**
-   *  
-   * @return chooseGenomeDataFile()
-   * @see CellProliferationGUI#chooseGenomeDataFile()
+   * Provides access to the genome data file selected by the user. 
+   * 
+   * @return user_selected_genome_file the genome data file selected by the user.
    */
   public static File getGenomeDataFile()
   {
-    return chooseGenomeDataFile();
+    File user_selected_genome_file = chooseGenomeDataFile();
+    return user_selected_genome_file;
   }// GetGenomeDataFile
   
   /**
-   * Displays an alert dialogue that displays a title and contents passed to the 
+   * Creates an alert dialogue that displays a title and contents passed to this 
    * method.
    * 
    * @param dialogue_title the title of the alert dialogue.
