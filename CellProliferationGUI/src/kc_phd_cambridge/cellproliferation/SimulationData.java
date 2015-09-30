@@ -31,17 +31,17 @@ public class SimulationData
 {
   // Instance variable
   private final String organism;
-  private final int sex, initial_population_size, simulation_duration, time_interval;
+  private final int sex, initial_population_size, simulation_duration, time_interval, haploid_number;
   
   // Constructor
-  public SimulationData(String new_org, int new_sex, int new_init_pop_size, int new_sim_dur, int new_interval)
+  public SimulationData(String new_org, int new_sex, int new_init_pop_size, int new_sim_dur, int new_interval, int new_haploid_number)
   {  
     this.organism = new_org;
     this.sex = new_sex;
     this.initial_population_size = new_init_pop_size;
     this.simulation_duration = new_sim_dur;
     this.time_interval = new_interval;
-    
+    this.haploid_number = new_haploid_number;  
   }// Constructor
   
   //*** Access methods ***//
@@ -96,6 +96,11 @@ public class SimulationData
     return this.time_interval;
   }// getTimeInterval
   
+  public int getHaploidNumber() 
+  {
+    return this.haploid_number;
+  }// getHaploidNumber() 
+  
   /**
    * Provide read access to a string representation of this input parameter set
    *
@@ -104,7 +109,7 @@ public class SimulationData
   @Override
   public String toString()
   {
-    String sex = this.sex == 1 ? "Female" : "Male";
-    return "Oganism: " + this.organism + ", Sex: " + sex + ", Initial Population Size: " + this.initial_population_size + ", Simulation Duration: " + this.simulation_duration + ", Time Interval: "+ this.time_interval; 
+    String sex_string = this.sex == 1 ? "Female" : "Male";
+    return "Oganism: " + this.organism + ", Sex: " + sex_string + ", Initial Population Size: " + this.initial_population_size + ", Simulation Duration: " + this.simulation_duration + ", Time Interval: "+ this.time_interval + ", Haploid #: " + haploid_number; 
   }// toString
 }// SimulationData

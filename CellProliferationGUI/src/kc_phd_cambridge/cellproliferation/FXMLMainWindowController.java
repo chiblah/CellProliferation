@@ -16,10 +16,8 @@
 package kc_phd_cambridge.cellproliferation;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Consumer;
 import javafx.event.*;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -56,6 +54,9 @@ public class FXMLMainWindowController
   private ToggleGroup organismToggleGroup, sexToggleGroup; // Toggle groups to make mutually exclusive selevtions for organism and sex
   @FXML
   private TextArea outputTextArea;
+  @FXML
+  private TitledPane simTitledPane;
+
   private boolean organism_input_valid = false, sex_input_valid = false, init_pop_input_valid = false, sim_dur_input_valid = false, interval_input_valid = false;
   
   public static final boolean CLEAR_CONTENT = true, DONT_CLEAR_CONTENTS = false; // Whether to clear the contents of the TextArea   
@@ -78,6 +79,41 @@ public class FXMLMainWindowController
    */
   public static GenomeData genome_data; 
   
+  boolean validate;
+  
+  public FXMLMainWindowController() 
+  {
+    
+  }
+  /**
+   * A validation helper method.
+   * 
+   * Runs a few checks to enable or disable some input fields based on what
+   * data the user has already provided. Ensure that the user first selects a 
+   * genome data file before they can do anything else.
+   */
+  private boolean enableDisableInputFields()
+  {
+    if(genome_data !=null && genome_data.getImportStatus())
+    {// a valid genome data file has been provided
+      addSimulationButton.setDisable(false);
+      simTitledPane.setDisable(true);
+    } 
+    
+    if(input_data_for_simulations.isEmpty())
+    {//no input data added yet  
+    }
+    else
+    {// a valid genome data file has been imported and at least one set of valid input data has been provided
+      simTitledPane.setDisable(false);
+    }
+    
+    if(input_data_for_simulations == null && genome_data == null)
+    {// no valid genome data file or valid input data
+      beginSimulationButton.setDisable(true); 
+    }
+    return true;
+  }// enableDisableInputFields
   /** 
    * Evaluated when the user decides to add a simulation dataset to the queue.
    * 
@@ -119,7 +155,7 @@ public class FXMLMainWindowController
     }
     else if(organismRadioButtonTest.isSelected())
     {
-      temp_organism = "Test test";
+      temp_organism = "Test testulus";
       organism_input_valid = true;
     }
     else
@@ -182,7 +218,8 @@ public class FXMLMainWindowController
     // list of input datasets. However, only do this if all inputes are valid
     if(organism_input_valid && sex_input_valid && init_pop_input_valid && sim_dur_input_valid && interval_input_valid)
     {
-      input_data_for_simulations.add(new SimulationData(temp_organism, temp_sex, temp_initial_population_size, temp_simulation_duration, temp_time_interval));
+      int haploid_number = genome_data.getHaploidNumber(temp_organism);
+      input_data_for_simulations.add(new SimulationData(temp_organism, temp_sex, temp_initial_population_size, temp_simulation_duration, temp_time_interval, haploid_number));
       String to_print = "The simulation dataset has been successfuly added to the list of simulations." + new_line + input_data_for_simulations.get(input_data_for_simulations.size() - 1).toString() + new_line + new_line;
       printToTextArea(DONT_CLEAR_CONTENTS,to_print);
       //displayAlert("",to_print);
@@ -194,6 +231,9 @@ public class FXMLMainWindowController
     if(!validation_message.toString().isEmpty())
       displayAlert("INVALID INPUTS!", validation_message.toString());
     // 3. Based on which option has been selected, wipe input field
+    
+    validate = enableDisableInputFields();
+    
   }// handleAddSimulationButtonEvent
 
   
@@ -276,7 +316,9 @@ public class FXMLMainWindowController
     }catch(NullPointerException|IOException|ArrayIndexOutOfBoundsException error)
     {
       displayAlert("ERROR", "Failed to import genome data file, check that you have selected a valid file." + new_line +  "ERROR: " + error.getMessage() +new_line + "CAUSE:" + error.toString());
-    }// try catch  
+    }// try catch 
+    
+    this.validate = enableDisableInputFields();
   }//handleChangeGenomeDataFileButtonEvent  
   
   /**

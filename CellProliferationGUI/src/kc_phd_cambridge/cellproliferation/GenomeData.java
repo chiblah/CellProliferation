@@ -34,7 +34,8 @@ import java.util.List;
  * This is handled by specifying a sex of the organism to determine the 
  * combination of the sex chromosomes. When imported into the list, the 'chr'
  * chromosome identifier is discarded and array indices used to track chromosome
- * number.
+ * number and the chromosome sizes stored as a single string of two comma 
+ * separated integers (one for each chromosome in a homologous pair).
  *
  * @author Kyata Chibalabala
  */
@@ -44,7 +45,6 @@ public class GenomeData
   private static boolean successful_genome_import = false;
   private static File genome_data_file;
   private static List<String> all_genome_data_contents, header_lines; 
-  private static int haploid_number;
   
   /**
    * Constructs a GenomeData object used to store all Genome Data from a user 
@@ -111,6 +111,27 @@ public class GenomeData
   }// getImportStatus
   
   /**
+   * Allows access to the integer value of haploid number for a specified organism.
+   * 
+   * @param target_organism_name the target organism for which the haploid number is required.
+   * 
+   * @return haploid_number the haploid number of the specified organism.
+   */
+  public int getHaploidNumber(String target_organism_name)
+  {
+    int haploid_number = 0;
+    StringBuilder this_organism_name;
+    for(String this_header:header_lines)
+    {
+      String[] split_header = this_header.split(" ");// Split the header line into constituent parts
+      this_organism_name = new StringBuilder().append(split_header[1]).append(" ").append(split_header[2]); // Recreate the genus and species of the organism from the strings
+      if(target_organism_name.equals(this_organism_name.toString()))
+        haploid_number = Integer.parseInt(split_header[4]);
+    }
+    return haploid_number;
+  }// getHaploidNumber
+  
+  /**
    * Provides access to a subset of the genome data.
    * 
    * Access to the chromosome sizes of a chosen organism, male or female.
@@ -145,7 +166,6 @@ public class GenomeData
         if(organism_name.toString().equals(target_organism)) // If this line refers to the organism of interest
         {
           found_target_organism = true;
-          haploid_number = Integer.parseInt(split_line[4]); // Get the haploid number stored in the header line
         }
         else
         {

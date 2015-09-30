@@ -17,7 +17,6 @@ package kc_phd_cambridge.cellproliferation;
 
 import java.util.*;
 import static kc_phd_cambridge.cellproliferation.FXMLMainWindowController.genome_data;
-import static kc_phd_cambridge.cellproliferation.FXMLMainWindowController.new_line;
 
 /**
  *
@@ -33,7 +32,7 @@ public class Simulation implements Runnable
   private int current_timepoint = 0; // Track the current time in this simulation, initialise at 0.
 	private int newest_generation = -1; // Keep track of the most recent generation of cells
 	private int id_of_last_created_cell = -1; // The cell ID of the last cell that was created. Tracked to set the ID of the next cell to be created. 
-  private int haploid_number = 2; // TODO: Set this value dynamically!!!!!!**********
+  private final int haploid_number; 
   
   // Instance variables passed to constructor
   private final SimulationData input_parameters;
@@ -56,6 +55,7 @@ public class Simulation implements Runnable
    initial_population_size = input_parameters.getInitialPopulationSize();
    simulation_duration = input_parameters.getSimulationDuration();
    time_interval = input_parameters.getTimeInterval();
+   haploid_number = input_parameters.getHaploidNumber();
   }
   
   @Override
@@ -175,7 +175,7 @@ public class Simulation implements Runnable
     {
       List<Cell> population = new ArrayList<>(); //Define an arraylist to hold the initial population of cells
       double[][][] diploid_genome = newEmptyDiploidGenome();
-      int cell_generation = newest_generation + 1, last_div = -1;
+      int cell_generation = this.newest_generation + 1, last_div = -1;
         
     // Fill the empty genome with unlabelled DNA strands
     for(double[][] diploid_genome1 : diploid_genome) 
@@ -196,7 +196,7 @@ public class Simulation implements Runnable
       population.add(new  Cell(cell_id, cell_generation, last_div, CAN_DIVIDE, diploid_genome)); // Create a new Cell object with the following values.
       id_of_last_created_cell = cell_id; // Track the id of the last created cell
     }// for
-    newest_generation++;
+    this.newest_generation++;
     return population;
   }// initiate_first_population()
     

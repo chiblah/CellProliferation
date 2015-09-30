@@ -69,8 +69,8 @@
             <TextField fx:id="initPopSizeField" prefHeight="26.0" prefWidth="121.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
             <TextField fx:id="simDurationField" prefHeight="26.0" prefWidth="119.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
             <TextField fx:id="timeIntervalField" prefHeight="26.0" prefWidth="73.0" GridPane.columnIndex="4" GridPane.rowIndex="1" />
-            <Button fx:id="addSimulationButton" mnemonicParsing="false" onAction="#handleAddSimulationButtonEvent" text="Add Dataset to Queue" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
-            <TitledPane expanded="false" prefHeight="50.0" prefWidth="154.0" text="Input Complete" textFill="#4a0303" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="3">
+            <Button fx:id="addSimulationButton" disable="true" mnemonicParsing="false" onAction="#handleAddSimulationButtonEvent" text="Add Dataset to Queue" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+            <TitledPane fx:id="simTitledPane" disable="true" expanded="false" prefHeight="50.0" prefWidth="154.0" text="Input Complete" textFill="#4a0303" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="3">
                <content>
                   <Button fx:id="beginSimulationButton" mnemonicParsing="false" onAction="#handleBeginSimulationEvent" prefHeight="34.0" prefWidth="153.0" text="Begin Simulation(s)" />
                </content>
