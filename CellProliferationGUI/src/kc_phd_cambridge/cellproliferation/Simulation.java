@@ -72,6 +72,7 @@ public class Simulation implements Runnable
     final_population.stream().forEach((this_cell) -> 
     {
       System.out.println(this_cell.toString());
+      this_cell.getLabelDistribution();
     });// For each cell in the final population 
   }
   
@@ -89,7 +90,7 @@ public class Simulation implements Runnable
     System.out.println("Running =>" + input_parameters.toString());
     
     int population_size = cell_population.size();
-    int[][][] blank_genome = new int[haploid_number][2][2]; // A blank diploid genome - The karyotype of the cell, 3 dimensional array to store discrete values for each  chromosome -> each homologous pair of chromosomes -> 2 complementary DNA strands'
+    double[][][] blank_genome = newEmptyDiploidGenome();
 		
     //Progress through time at selected intervals for a specified duration
 		for(int current_time = 0; current_time < simulation_duration; current_time += time_interval)
@@ -104,42 +105,45 @@ public class Simulation implements Runnable
         if(current_cell_can_divide)
         {
 
-        //Produce a random number, R, between ***********????!!!!!!!!!
-        double between_zero_and_one = randomDouble();
-        if(between_zero_and_one < 0.2) //The cell can divide
-        {
-          //Remove one cell from the current generation and add two to the next
-          //by changing the generation of the original cell to current_gen + 1 and
-          //creating a new cell object also in generation current_gen + 1
+          //Produce a random number, R, between ***********????!!!!!!!!!
+          double between_zero_and_one = randomDouble();
+          if(between_zero_and_one < 0.2) //The cell can divide
+          {
+            //Remove one cell from the current generation and add two to the next
+            //by changing the generation of the original cell to current_gen + 1 and
+            //creating a new cell object also in generation current_gen + 1
 
-          final int daughter_cell_one = current_element; //The original cell will become daughter cell one
+            final int daughter_cell_one = current_element; //The index of the current cell which becomes daughter cell one
 
-          // Change the orginal cell to daughter cell 1 by increasing its generation value by 1, from its current generation
-          //printString("Generation of parent cell = " + daughter_cell_one.getGeneration());
-          //printString("Cell ID of parent cell = " + daughter_cell_one.getId());
-          int next_generation = cell_population.get(daughter_cell_one).getGeneration() + 1;
-          cell_population.get(daughter_cell_one).setGeneration(next_generation);
-          //This is now a new cell, change its ID to a new unique one???????
+            // Change the orginal cell to daughter cell 1 by increasing its generation value by 1, from its current generation
+            //printString("Generation of parent cell = " + daughter_cell_one.getGeneration());
+            //printString("Cell ID of parent cell = " + daughter_cell_one.getId());
+            int next_generation = current_cell.getGeneration() + 1;
+            cell_population.get(daughter_cell_one).setGeneration(next_generation);
 
-          //Create a new cell object which will become daughter cell 2, with a blank diploid genome, of same generation as the newly created daughter cell 1
-          cell_population.add(new  Cell(id_of_last_created_cell + 1, next_generation, -1, CAN_DIVIDE, newEmptyDiploidGenome()));
-          id_of_last_created_cell++;
-          //System.out.println("Population size after division = " + cell_population.size());
-          final int daughter_cell_two = (cell_population.size() - 1); //Create and set daughter cell 2 to the newly created cell object
-          
-          /*********************************************************/
-          // Track the latest generation of cells.
-          if(cell_population.get(daughter_cell_one).getGeneration() > newest_generation)
-          {newest_generation++;}
-          /*********************************************************/
-        }// if(between_zeroANDone >= 0.5)
-        else //Cell doesn't divided
-        {
-          //System.out.println("Didn't divide --->" + current_cell.toString());
-        }
-      } // if the cell can divide
 
-      //printString(Integer.toString(cell_population.get(current_element).getGeneration()));
+            //Create a new cell object which will become daughter cell 2, with a blank diploid genome, of same generation as the newly created daughter cell 1
+            cell_population.add(new  Cell(id_of_last_created_cell + 1, next_generation, -1, CAN_DIVIDE, blank_genome));
+            id_of_last_created_cell++;
+            //System.out.println("Population size after division = " + cell_population.size());
+            final int daughter_cell_two = (cell_population.size() - 1); // The index of daughter cell two, the newly created cell
+
+            //RETURNS A LIST OF containing two double[][][] arrays
+            mitosis(cell_population, daughter_cell_one, daughter_cell_two);
+
+            /*********************************************************/
+            // Track the latest generation of cells.
+            if(current_cell.getGeneration() > newest_generation)
+            {newest_generation++;}
+            /*********************************************************/
+          }// if(between_zeroANDone >= 0.5)
+          else //Cell doesn't divided
+          {
+            //System.out.println("Didn't divide --->" + current_cell.toString());
+          }
+        } // if the cell can divide
+
+        //printString(Integer.toString(cell_population.get(current_element).getGeneration()));
 
       } // for all cells in the main population
       population_size = cell_population.size(); // Update the population size after the round of division
@@ -148,7 +152,75 @@ public class Simulation implements Runnable
     System.out.println("Latest generation = " + (newest_generation));
     return cell_population;  
   }// runSimulation
+  
+  /**
+   * Models DNA synthesis during S-Phase, takes the genome from a mother cell and
+   * produces two genomes for two daughter cells; also handles stochastic 
+   * chromosome segregation into daughter cell one or two.
+   * 
+   * @param cell_one the integer value for the index of the mother cell which will become daughter cell one 
+   * @param cell_two the integer value for the index of daughter cell two 
+   */
+  private void mitosis(List<Cell> population, int cell_one, int cell_two)
+  {
+    double[][][] temp_genome_one = population.get(cell_one).getGenome(), temp_genome_two = newEmptyDiploidGenome();
     
+    for (int homologous_pair_count = 0; homologous_pair_count < temp_genome_one.length; homologous_pair_count++) 
+    {// foreach homologous pair of the genome
+      for (int chromosome_count = 0; chromosome_count < temp_genome_one[homologous_pair_count].length; chromosome_count++) 
+      {// for each chromosome in each homologous pair
+        for (int dna_strand_count = 0; dna_strand_count < temp_genome_one[homologous_pair_count][chromosome_count].length; dna_strand_count++) 
+        {
+          /* For each dna strand in this chromosome
+          New strands will be formed such that the new combinations of double
+          stranded DNA will be OS-NS and NS-OS (OS=Original Strand,
+          NS=New Strand). The logic to produce these combinations of double
+          stranded DNA is handled here.
+          */
+          
+          if(dna_strand_count == 1)
+          {// Ignore the first strand, do this on the iteration for the second strand
+            temp_genome_two[homologous_pair_count][chromosome_count][dna_strand_count] = temp_genome_one[homologous_pair_count][chromosome_count][dna_strand_count];
+            temp_genome_two[homologous_pair_count][chromosome_count][dna_strand_count-1]=1.0;
+            
+            temp_genome_one[homologous_pair_count][chromosome_count][dna_strand_count]=1.0;
+            
+          }
+          
+          
+          //System.out.println(Double.toString(mother_cell_genome[homologous_pair_count][chromosome_count][dna_strand_count]));
+        }
+        // Perform the logic to model stochastic distribution of each double 
+        // stranded DNA complex into either temp_genome_one or two
+        double new_zero_to_one = randomDouble();
+        if(new_zero_to_one >= 0.5)
+        {// swap the chromosome between genomes
+          double[] temp_chromosome_one, temp_chromosome_two;
+          
+          // Set the values of the temp chromosomes to the current chromosomes 
+          // being evaluated from each chromosome
+          temp_chromosome_one = temp_genome_one[homologous_pair_count][chromosome_count];
+          temp_chromosome_two = temp_genome_two[homologous_pair_count][chromosome_count];
+          
+          // PRINT CHROMOSOME CONTENTS BEFORE SWAPPING AND AFTER SWAPPING
+          
+          // Swap the chromosomes
+          temp_genome_one[homologous_pair_count][chromosome_count] = temp_chromosome_two;
+          temp_genome_two[homologous_pair_count][chromosome_count] = temp_chromosome_one;
+                  
+        }else
+        {/*Don't swap chromosomes*/}
+      }// for each chromosome in a homologous pair
+    }// for each homologous pair
+    
+    /*
+    Mitosis logic, including stochastic chromosome segregartion into daughter 
+    cells is complete, now write the two temp genomes back to the cells
+    */
+    population.get(cell_one).setGenome(temp_genome_one);
+    population.get(cell_two).setGenome(temp_genome_two);
+  }// mitosis
+  
   /**
    *
    */
@@ -178,13 +250,14 @@ public class Simulation implements Runnable
       int cell_generation = this.newest_generation + 1, last_div = -1;
         
     // Fill the empty genome with unlabelled DNA strands
-    for(double[][] diploid_genome1 : diploid_genome) 
-    {
-      for(double[] diploid_genome11 : diploid_genome1) 
-      {
-        for(int dna_strand_count = 0; dna_strand_count < diploid_genome11.length; dna_strand_count++) 
-        {
-          diploid_genome11[dna_strand_count] = STRAND_UNLABELLED;
+    for(double[][] homologous_pair : diploid_genome) 
+    {// foreach homologous pair of the genome
+      for(double[] chromosome : homologous_pair) 
+      {// for each chromosome in each homologous pair
+        for(int dna_strand_count = 0; dna_strand_count < chromosome.length; dna_strand_count++) 
+        {// for each dna strand in this chromosome
+          chromosome[dna_strand_count] = STRAND_UNLABELLED;
+          //System.out.println(Double.toString(STRAND_UNLABELLED));
         }
       }
     }

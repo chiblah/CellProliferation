@@ -41,7 +41,7 @@ import java.util.List;
  */
 public class GenomeData 
 {
-  // Class variables
+  // Class variables, static as the contents of this object will be shared
   private static boolean successful_genome_import = false;
   private static File genome_data_file;
   private static List<String> all_genome_data_contents, header_lines; 
