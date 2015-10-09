@@ -62,14 +62,14 @@ public class Simulation implements Runnable
   public void run()
   {
     //System.out.println("Running =>" + input_parameters.toString() + " Population size = " + cell_population.size()); 
-    List<String> subset = genome_data.getGenomeData(organism, sex);
+    List<String> subset = GenomeData.getGenomeData(organism, sex);
     subset.stream().forEach((i) -> 
     {
       System.out.println(i);
     });
-    
+    System.out.println("total_number_of_bases_in_genome = " + GenomeData.getGenomeSize(organism, sex));
     List<Cell> final_population = runSimulation();
-    final_population.stream().forEach((this_cell) -> 
+    final_population.stream().forEach((Cell this_cell) -> 
     {
       System.out.println(this_cell.toString());
       this_cell.getLabelDistribution();

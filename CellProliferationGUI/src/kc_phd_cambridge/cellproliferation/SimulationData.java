@@ -15,9 +15,6 @@
  */
 package kc_phd_cambridge.cellproliferation;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Class for the storage of user input parameters.
  * 

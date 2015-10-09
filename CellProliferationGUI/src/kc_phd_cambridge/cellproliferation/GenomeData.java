@@ -105,7 +105,7 @@ public class GenomeData
    * 
    * @return successful_genome_import whether the import operation was successful or not
    */
-  public boolean getImportStatus() 
+  public static boolean getImportStatus() 
   {
     return successful_genome_import;
   }// getImportStatus
@@ -114,10 +114,9 @@ public class GenomeData
    * Allows access to the integer value of haploid number for a specified organism.
    * 
    * @param target_organism_name the target organism for which the haploid number is required.
-   * 
    * @return haploid_number the haploid number of the specified organism.
    */
-  public int getHaploidNumber(String target_organism_name)
+  public static int getHaploidNumber(String target_organism_name)
   {
     int haploid_number = 0;
     StringBuilder this_organism_name;
@@ -136,11 +135,11 @@ public class GenomeData
    * 
    * Access to the chromosome sizes of a chosen organism, male or female.
    * 
-   * @param target_organism the organism for which chromosome sizes are required.
-   * @param sex the combination of sex chromosome sizes to return, XX (female) or XY (male)
+   * @param target_organism the string value representing the organism for which chromosome sizes are required.
+   * @param sex integer value for sex, gives the combination of sex chromosome sizes to return, XX (female) or XY (male)
    * @return genome_data_contents_subset the subset of genome data of the specified organism.
    */
-  public List<String> getGenomeData(String target_organism, int sex)
+  public static List<String> getGenomeData(String target_organism, int sex)
   {
     List<String> genome_data_contents_subset = new ArrayList<>();
     
@@ -216,12 +215,34 @@ public class GenomeData
   }
 
   /**
+   * Returns the genome size of a diploid in bases.
+   * 
+   * @param target_organism the string value representing the organism for which total genome size is required.
+   * @param sex integer value for sex, gives the combination of sex chromosome sizes to return, XX (female) or XY (male)
+   * @return
+   */ 
+  public static int getGenomeSize(String target_organism, int sex)
+  {
+    int total_number_of_bases_in_genome = 0;
+    final List<String> genome_data = getGenomeData(target_organism, sex);
+    final int haploid_number = getHaploidNumber(target_organism);
+    
+    for(int chromosome_count = 0; chromosome_count < haploid_number; chromosome_count++)
+    {
+      String[] split_chromosome_sizes = genome_data.get(chromosome_count).split(",");
+      int this_chromosome_size = Integer.parseInt(split_chromosome_sizes[0]) + Integer.parseInt(split_chromosome_sizes[1]);
+      total_number_of_bases_in_genome += this_chromosome_size;
+    }
+    return total_number_of_bases_in_genome;  
+  }// getGenomeSize
+  
+  /**
    * Provides access to the header lines found in the imported genome data file.
    * 
    * Used to inform the user of the header lines in the genome file they have imported.
    * @return header_lines the header lines present in the imported genome data file.
    */
-  public List<String> getGetHaderLines() 
+  public static List<String> getGetHaderLines() 
   {
     return header_lines; 
   }// getGetHaderLines
