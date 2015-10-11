@@ -44,9 +44,13 @@ public class DataAnalysis
     this.organism = new_organism;
     this.sex = new_sex;
     
+    total_number_of_bases_in_genome = GenomeData.getGenomeSize(this.organism, this.sex);
+    int haploid_number = GenomeData.getHaploidNumber(this.organism);
     cell_population.stream().forEach((this_cell) -> 
     {
+      double fraction_labelled = this_cell.getLabelDistribution()/(haploid_number*2);
       //DO SOMETHING WITH EACH CELL
+      System.out.println("Cell: " + this_cell.getId() + ". Fraction labelled: " + fraction_labelled);
     });// For each cell in the final population 
     /*TODO
     1. Calculate B, the toal number of bases in the genome
@@ -54,6 +58,4 @@ public class DataAnalysis
     3. Calculate F, the fraction of the genome that is labelled
     */
   } 
-  
-  
 }// DataAnalysis

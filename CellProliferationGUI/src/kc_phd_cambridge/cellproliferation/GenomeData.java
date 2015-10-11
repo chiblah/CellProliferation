@@ -215,11 +215,11 @@ public class GenomeData
   }
 
   /**
-   * Returns the genome size of a diploid in bases.
+   * Returns the size of a diploid genome in bases.
    * 
    * @param target_organism the string value representing the organism for which total genome size is required.
-   * @param sex integer value for sex, gives the combination of sex chromosome sizes to return, XX (female) or XY (male)
-   * @return
+   * @param sex integer value for sex, gives the combination of sex chromosome sizes to return, XX (female) or XY (male).
+   * @return total_number_of_bases_in_genome the integer value for the sum of all bases on all chromosomes.
    */ 
   public static int getGenomeSize(String target_organism, int sex)
   {

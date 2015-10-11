@@ -118,18 +118,21 @@ public class Cell
   /**
    *
    */
-  public void getLabelDistribution()
+  public double getLabelDistribution()
   {
+    double total_labelled_bases_in_genome = 0;
     for(int chromosome_count = 0; chromosome_count < this.genome.length; chromosome_count++)
     {
       for(int homologous_pair_count= 0; homologous_pair_count < this.genome[chromosome_count].length; homologous_pair_count++)
       {
         for(int dna_strand_count = 0; dna_strand_count < this.genome[chromosome_count][homologous_pair_count].length; dna_strand_count++)
         {
+          total_labelled_bases_in_genome += this.genome[chromosome_count][homologous_pair_count][dna_strand_count];
           System.out.println("Chromosome " + Integer.toString(chromosome_count+1) + "; Homologous Pair " + Integer.toString(homologous_pair_count+1) + "; Strand " + Integer.  toString(dna_strand_count+1) + " - Label status = " + Double.toString(this.genome[chromosome_count][homologous_pair_count][dna_strand_count]));
         }
       }
     }
+    return total_labelled_bases_in_genome;
   }// getLabelDistributionOfCell
   
 	/**

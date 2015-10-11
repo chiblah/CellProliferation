@@ -74,6 +74,8 @@ public class Simulation implements Runnable
       System.out.println(this_cell.toString());
       this_cell.getLabelDistribution();
     });// For each cell in the final population 
+    
+    DataAnalysis run_analysis = new DataAnalysis(final_population, subset, organism,sex);
   }
   
   //*** Helper methods ***//
@@ -93,9 +95,9 @@ public class Simulation implements Runnable
     double[][][] blank_genome = newEmptyDiploidGenome();
 		
     //Progress through time at selected intervals for a specified duration
-		for(int current_time = 0; current_time < simulation_duration; current_time += time_interval)
+		for(int current_timepoint = 0; current_timepoint < simulation_duration; current_timepoint += time_interval)
     {
-      System.out.println(current_time + " " + population_size);
+      System.out.println(current_timepoint + " " + population_size);
       //Perform division of all cells that can divide as determined by a random number generator and the set division threshhold
       //As new cells are being added to the list, only go through the cells present in the population before new cells were added in this round i.e use the previous population size as max number of iterations.
       for(int current_element = 0; current_element < population_size; current_element++)
@@ -128,7 +130,6 @@ public class Simulation implements Runnable
             //System.out.println("Population size after division = " + cell_population.size());
             final int daughter_cell_two = (cell_population.size() - 1); // The index of daughter cell two, the newly created cell
 
-            //RETURNS A LIST OF containing two double[][][] arrays
             mitosis(cell_population, daughter_cell_one, daughter_cell_two);
 
             /*********************************************************/
@@ -147,7 +148,7 @@ public class Simulation implements Runnable
 
       } // for all cells in the main population
       population_size = cell_population.size(); // Update the population size after the round of division
-      System.out.println(current_time + " " + population_size);
+      System.out.println(current_timepoint + " " + population_size);
     }// for
     System.out.println("Latest generation = " + (newest_generation));
     return cell_population;  
