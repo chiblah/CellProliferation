@@ -230,7 +230,7 @@ public class GenomeData
     for(int chromosome_count = 0; chromosome_count < haploid_number; chromosome_count++)
     {
       String[] split_chromosome_sizes = genome_data.get(chromosome_count).split(",");
-      int this_chromosome_size = Integer.parseInt(split_chromosome_sizes[0]) + Integer.parseInt(split_chromosome_sizes[1]);
+      int this_chromosome_size = Integer.parseInt(split_chromosome_sizes[0])*2 + Integer.parseInt(split_chromosome_sizes[1])*2;
       total_number_of_bases_in_genome += this_chromosome_size;
     }
     return total_number_of_bases_in_genome;  

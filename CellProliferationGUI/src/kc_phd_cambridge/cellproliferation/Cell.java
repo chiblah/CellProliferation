@@ -129,6 +129,7 @@ public class Cell
         {
           total_labelled_bases_in_genome += this.genome[chromosome_count][homologous_pair_count][dna_strand_count];
           System.out.println("Chromosome " + Integer.toString(chromosome_count+1) + "; Homologous Pair " + Integer.toString(homologous_pair_count+1) + "; Strand " + Integer.  toString(dna_strand_count+1) + " - Label status = " + Double.toString(this.genome[chromosome_count][homologous_pair_count][dna_strand_count]));
+          //System.out.println(""+ GenomeData.getGenomeData(organism, sex));
         }
       }
     }

@@ -48,9 +48,39 @@ public class DataAnalysis
     int haploid_number = GenomeData.getHaploidNumber(this.organism);
     cell_population.stream().forEach((this_cell) -> 
     {
-      double fraction_labelled = this_cell.getLabelDistribution()/(haploid_number*2);
+      //this_cell.getLabelDistribution();
+      double[][][] genome = this_cell.getGenome();
+      double total_labelled_bases = 0;
+      for(int chromosome_count = 0; chromosome_count < genome.length; chromosome_count++)
+      {
+        for(int homologous_pair_count= 0; homologous_pair_count < genome[chromosome_count].length; homologous_pair_count++)
+        {
+          int chromosome_size = 0;
+          String[] split_chromosome_sizes = genome_data.get(chromosome_count).split(",");
+          if(homologous_pair_count==0)
+          {//Homologous chromosome one
+            chromosome_size = Integer.parseInt(split_chromosome_sizes[0]);
+          }else
+          {//Homologous chromosome two
+            chromosome_size = Integer.parseInt(split_chromosome_sizes[1]);
+          }
+          for(int dna_strand_count = 0; dna_strand_count < genome[chromosome_count][homologous_pair_count].length; dna_strand_count++)
+          {
+            
+            total_labelled_bases += genome[chromosome_count][homologous_pair_count][dna_strand_count]*chromosome_size;
+            
+            //System.out.println(""+total_labelled_bases);
+            System.out.println(""+chromosome_size);
+            //System.out.println("Chromosome " + Integer.toString(chromosome_count+1) + "; Homologous Pair " + Integer.toString(homologous_pair_count+1) + "; Strand " + Integer.  toString(dna_strand_count+1) + " - Label status = " + Double.toString(this.genome[chromosome_count][homologous_pair_count][dna_strand_count]));
+          }
+          //total_labelled_bases = 0;
+        }
+      }
+      
+      double fraction_labelled = total_labelled_bases/total_number_of_bases_in_genome;
       //DO SOMETHING WITH EACH CELL
       System.out.println("Cell: " + this_cell.getId() + ". Fraction labelled: " + fraction_labelled);
+      System.out.println("Total labelled bases " + total_labelled_bases + "   Total bases in genome: " + total_number_of_bases_in_genome);
     });// For each cell in the final population 
     /*TODO
     1. Calculate B, the toal number of bases in the genome

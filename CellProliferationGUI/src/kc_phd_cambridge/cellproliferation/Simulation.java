@@ -16,7 +16,6 @@
 package kc_phd_cambridge.cellproliferation;
 
 import java.util.*;
-import static kc_phd_cambridge.cellproliferation.FXMLMainWindowController.genome_data;
 
 /**
  *
