@@ -31,15 +31,17 @@ public class Cell
 	private double last_div; // The last time this cell completed M-phase. Initially set to the timepoint it was created
 	private boolean can_divide; // Indicates the state of the cell, true if cell is at G2 and can divide
   private double[][][] genome;
+  private double fraction_genome_labelled;
 	
   // Constructor
-	public Cell(int new_id, int new_gen, double provided_last_div, boolean division_status, double[][][] provided_genome)
+	public Cell(int new_id, int new_gen, double provided_last_div, boolean division_status, double[][][] provided_genome, double provided_fraction_genome_labelled)
 	{
 		this.cell_id = new_id;
 		this.cell_gen = new_gen;
 		this.last_div = provided_last_div;
 		this.can_divide = division_status;
-    this.genome = provided_genome;	
+    this.genome = provided_genome;
+    this.fraction_genome_labelled = provided_fraction_genome_labelled;
 	}// Constructor
 	
 	//*** Access methods ***//
@@ -114,27 +116,27 @@ public class Cell
   {
     this.genome = new_genome;
   }// setGenome
-
+  
   /**
+   * Allows the label status of this cell's genome to be changed.
    *
+   * @param new_fraction_genome_labelled the new double representing fractional labelling of this cell's genome.
+   * @see kc_phd_cambridge.cellproliferation.DataAnalysis#getCellLabelDistribution(Cell new_cell)
    */
-  public double getLabelDistribution()
+  public void setFractionGenomeLabelled(double new_fraction_genome_labelled)
   {
-    double total_labelled_bases_in_genome = 0;
-    for(int chromosome_count = 0; chromosome_count < this.genome.length; chromosome_count++)
-    {
-      for(int homologous_pair_count= 0; homologous_pair_count < this.genome[chromosome_count].length; homologous_pair_count++)
-      {
-        for(int dna_strand_count = 0; dna_strand_count < this.genome[chromosome_count][homologous_pair_count].length; dna_strand_count++)
-        {
-          total_labelled_bases_in_genome += this.genome[chromosome_count][homologous_pair_count][dna_strand_count];
-          System.out.println("Chromosome " + Integer.toString(chromosome_count+1) + "; Homologous Pair " + Integer.toString(homologous_pair_count+1) + "; Strand " + Integer.  toString(dna_strand_count+1) + " - Label status = " + Double.toString(this.genome[chromosome_count][homologous_pair_count][dna_strand_count]));
-          //System.out.println(""+ GenomeData.getGenomeData(organism, sex));
-        }
-      }
-    }
-    return total_labelled_bases_in_genome;
-  }// getLabelDistributionOfCell
+    this.fraction_genome_labelled = new_fraction_genome_labelled;
+  }// setFractionGenomeLabelled()
+  
+  /**
+   * Provides read access to the label status of this cell's genome.
+   *
+   * @return  the double representing fractional labelling of this cell's genome.
+   */
+  public double getFractionGenomeLabelled()
+  {
+      return this.fraction_genome_labelled;
+  }// getFractionGenomeLabelled()
   
 	/**
    * Returns a string of key information about this cell.

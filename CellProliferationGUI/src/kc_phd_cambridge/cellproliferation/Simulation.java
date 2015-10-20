@@ -25,7 +25,7 @@ public class Simulation implements Runnable
 {
   // Instance variables
   public static final int FEMALE = 1, MALE = 2; // "enums"
-  private static final double STRAND_FULLY_LABELLED = 1.0, STRAND_UNLABELLED = 0.0;
+  private static final double STRAND_FULLY_LABELLED = 1.0, STRAND_UNLABELLED = 0.0, GENOME_UNLABELLED = 0.0;
   private static final boolean CAN_DIVIDE = true, CANT_DIVIDE = false;
   
   private int current_timepoint = 0; // Track the current time in this simulation, initialise at 0.
@@ -60,21 +60,18 @@ public class Simulation implements Runnable
   @Override
   public void run()
   {
-    //System.out.println("Running =>" + input_parameters.toString() + " Population size = " + cell_population.size()); 
+    //Get the chromosome sizes for this simulation based on input parameters.
     List<String> subset = GenomeData.getGenomeData(organism, sex);
-    subset.stream().forEach((i) -> 
-    {
-      System.out.println(i);
-    });
-    System.out.println("total_number_of_bases_in_genome = " + GenomeData.getGenomeSize(organism, sex));
+    
+    //Perform the simulation
     List<Cell> final_population = runSimulation();
     final_population.stream().forEach((Cell this_cell) -> 
     {
       System.out.println(this_cell.toString());
-      this_cell.getLabelDistribution();
     });// For each cell in the final population 
     
-    DataAnalysis run_analysis = new DataAnalysis(final_population, subset, organism,sex);
+    //Create a DataAnalysis object for this simulation
+    new DataAnalysis(final_population, subset, organism,sex);
   }
   
   //*** Helper methods ***//
@@ -124,7 +121,7 @@ public class Simulation implements Runnable
 
 
             //Create a new cell object which will become daughter cell 2, with a blank diploid genome, of same generation as the newly created daughter cell 1
-            cell_population.add(new  Cell(id_of_last_created_cell + 1, next_generation, -1, CAN_DIVIDE, blank_genome));
+            cell_population.add(new  Cell(id_of_last_created_cell + 1, next_generation, -1, CAN_DIVIDE, blank_genome, GENOME_UNLABELLED));
             id_of_last_created_cell++;
             //System.out.println("Population size after division = " + cell_population.size());
             final int daughter_cell_two = (cell_population.size() - 1); // The index of daughter cell two, the newly created cell
@@ -266,7 +263,7 @@ public class Simulation implements Runnable
     for (int counter = 0; counter < required_population_size; counter++)
     {
       int cell_id = counter;
-      population.add(new  Cell(cell_id, cell_generation, last_div, CAN_DIVIDE, diploid_genome)); // Create a new Cell object with the following values.
+      population.add(new  Cell(cell_id, cell_generation, last_div, CAN_DIVIDE, diploid_genome, GENOME_UNLABELLED)); // Create a new Cell object with the following values.
       id_of_last_created_cell = cell_id; // Track the id of the last created cell
     }// for
     this.newest_generation++;
