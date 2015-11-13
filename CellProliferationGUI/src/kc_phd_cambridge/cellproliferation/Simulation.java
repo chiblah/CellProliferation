@@ -28,8 +28,7 @@ public class Simulation implements Runnable
   private static final double STRAND_FULLY_LABELLED = 1.0, STRAND_UNLABELLED = 0.0, GENOME_UNLABELLED = 0.0;
   private static final boolean CAN_DIVIDE = true, CANT_DIVIDE = false;
   
-  private int current_timepoint = 0; // Track the current time in this simulation, initialise at 0.
-	private int newest_generation = -1; // Keep track of the most recent generation of cells
+	private int newest_generation = 0; // Keep track of the most recent generation of cells
 	private int id_of_last_created_cell = -1; // The cell ID of the last cell that was created. Tracked to set the ID of the next cell to be created. 
   private final int haploid_number; 
   
@@ -61,7 +60,7 @@ public class Simulation implements Runnable
   public void run()
   {
     //Get the chromosome sizes for this simulation based on input parameters.
-    List<String> subset = GenomeData.getGenomeData(organism, sex);
+    List<String> genome_data_subset = GenomeData.getGenomeData(organism, sex);
     
     //Perform the simulation
     List<Cell> final_population = runSimulation();
@@ -71,7 +70,7 @@ public class Simulation implements Runnable
     });// For each cell in the final population 
     
     //Create a DataAnalysis object for this simulation
-    new DataAnalysis(final_population, subset, organism,sex);
+    new DataAnalysis(final_population, genome_data_subset, organism,sex);
   }
   
   //*** Helper methods ***//
@@ -181,7 +180,6 @@ public class Simulation implements Runnable
             temp_genome_two[homologous_pair_count][chromosome_count][dna_strand_count-1]=1.0;
             
             temp_genome_one[homologous_pair_count][chromosome_count][dna_strand_count]=1.0;
-            
           }
           
           

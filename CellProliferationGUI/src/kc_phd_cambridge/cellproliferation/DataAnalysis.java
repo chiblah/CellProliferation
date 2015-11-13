@@ -83,11 +83,11 @@ public class DataAnalysis
         }
         for(int dna_strand_count = 0; dna_strand_count < genome[chromosome_count][homologous_pair_count].length; dna_strand_count++)
         {// For each DNA strand in the chromosome 
-          double strand_bases_labelled = genome[chromosome_count][homologous_pair_count][dna_strand_count];
-          System.out.println("Strand bases labelled " + strand_bases_labelled);
-          total_labelled_bases_in_genome += strand_bases_labelled*(double)chromosome_size; 
+          double bases_labelled_on_strand = genome[chromosome_count][homologous_pair_count][dna_strand_count];
+          System.out.println("Strand bases labelled " + bases_labelled_on_strand);
+          total_labelled_bases_in_genome += bases_labelled_on_strand*(double)chromosome_size; 
           
-          chromo_labelled_bases =(strand_bases_labelled*(double)chromosome_size);          
+          chromo_labelled_bases =(bases_labelled_on_strand*(double)chromosome_size);          
         }// For each DNA strand
         chromosome_labelled_bases[chromosome_count][homologous_pair_count] = chromo_labelled_bases;
       }// For each chromosome in a homologous pair

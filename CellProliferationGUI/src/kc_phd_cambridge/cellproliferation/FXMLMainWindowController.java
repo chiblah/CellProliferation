@@ -94,7 +94,7 @@ public class FXMLMainWindowController
    */
   private boolean enableDisableInputFields()
   {
-    if(genome_data !=null && genome_data.getImportStatus())
+    if(genome_data !=null && GenomeData.getImportStatus())
     {// a valid genome data file has been provided
       addSimulationButton.setDisable(false);
       simTitledPane.setDisable(true);
@@ -218,7 +218,7 @@ public class FXMLMainWindowController
     // list of input datasets. However, only do this if all inputes are valid
     if(organism_input_valid && sex_input_valid && init_pop_input_valid && sim_dur_input_valid && interval_input_valid)
     {
-      int haploid_number = genome_data.getHaploidNumber(temp_organism);
+      int haploid_number = GenomeData.getHaploidNumber(temp_organism);
       input_data_for_simulations.add(new SimulationData(temp_organism, temp_sex, temp_initial_population_size, temp_simulation_duration, temp_time_interval, haploid_number));
       String to_print = "The simulation dataset has been successfuly added to the list of simulations." + new_line + input_data_for_simulations.get(input_data_for_simulations.size() - 1).toString() + new_line + new_line;
       printToTextArea(DONT_CLEAR_CONTENTS,to_print);
