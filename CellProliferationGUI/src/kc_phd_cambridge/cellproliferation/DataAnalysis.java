@@ -15,7 +15,10 @@
  */
 package kc_phd_cambridge.cellproliferation;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
+import static kc_phd_cambridge.cellproliferation.FXMLMainWindowController.new_line;
 
 
 /**
@@ -66,6 +69,7 @@ public class DataAnalysis
     double[][] chromosome_labelled_bases = new double[haploid_number][2];
     double[][][] genome = new_cell.getGenome();
     total_labelled_bases_in_genome = 0;
+    System.out.println("Cell " + new_cell.getId() + ": Generation " + new_cell.getGeneration());
     for(int chromosome_count = 0; chromosome_count < genome.length; chromosome_count++)
     {// For each homologous pair
       double chromo_labelled_bases = 0;
@@ -83,8 +87,11 @@ public class DataAnalysis
         }
         for(int dna_strand_count = 0; dna_strand_count < genome[chromosome_count][homologous_pair_count].length; dna_strand_count++)
         {// For each DNA strand in the chromosome 
+          
+          System.out.println(genome[chromosome_count][homologous_pair_count][dna_strand_count]);
+                  
           double bases_labelled_on_strand = genome[chromosome_count][homologous_pair_count][dna_strand_count];
-          System.out.println("Strand bases labelled " + bases_labelled_on_strand);
+          //System.out.println("Strand bases labelled " + bases_labelled_on_strand);
           total_labelled_bases_in_genome += bases_labelled_on_strand*(double)chromosome_size; 
           
           chromo_labelled_bases =(bases_labelled_on_strand*(double)chromosome_size);          
@@ -99,11 +106,31 @@ public class DataAnalysis
     {
       for(double chromo:homo_pair)
       {
-        System.out.println("Chromosome frction labelled: " + chromo);
+        //System.out.println("Chromosome fraction labelled: " + chromo);
       }
     }
     
-    System.out.println("Cell: " + new_cell.getId() + ". Fraction labelled: " + fraction_of_genome_labelled);
-    System.out.println("Total labelled bases " + total_labelled_bases_in_genome + "   Total bases in genome: " + total_number_of_bases_in_genome);
+    //System.out.println("Cell: " + new_cell.getId() + ". Fraction labelled: " + fraction_of_genome_labelled);
+    //System.out.println("Total labelled bases " + total_labelled_bases_in_genome + "   Total bases in genome: " + total_number_of_bases_in_genome);
   }// getCellLabelDistribution
+  
+  private void writeToFile(List<String> file_contents, String file_name)
+  {
+    try
+    {
+      try(FileWriter writer = new FileWriter("Gaussian.txt")) {
+        for(String line : file_contents)
+        {
+          writer.append(line);
+          writer.append(new_line);
+        }
+        //generate whatever data you want
+        writer.flush();
+        writer.close();
+      }
+    }
+    catch(IOException e)
+    {
+    }
+  }
 }// DataAnalysis

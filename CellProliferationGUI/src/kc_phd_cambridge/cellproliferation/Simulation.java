@@ -28,7 +28,7 @@ public class Simulation implements Runnable
   private static final double STRAND_FULLY_LABELLED = 1.0, STRAND_UNLABELLED = 0.0, GENOME_UNLABELLED = 0.0;
   private static final boolean CAN_DIVIDE = true, CANT_DIVIDE = false;
   
-	private int newest_generation = 0; // Keep track of the most recent generation of cells
+	private int newest_generation = -1; // Keep track of the most recent generation of cells
 	private int id_of_last_created_cell = -1; // The cell ID of the last cell that was created. Tracked to set the ID of the next cell to be created. 
   private final int haploid_number; 
   
@@ -88,7 +88,8 @@ public class Simulation implements Runnable
     
     int population_size = cell_population.size();
     double[][][] blank_genome = newEmptyDiploidGenome();
-		
+		List<String> genome_data_subset = GenomeData.getGenomeData(organism, sex);
+    
     //Progress through time at selected intervals for a specified duration
 		for(int current_timepoint = 0; current_timepoint < simulation_duration; current_timepoint += time_interval)
     {
@@ -132,6 +133,7 @@ public class Simulation implements Runnable
             if(current_cell.getGeneration() > newest_generation)
             {newest_generation++;}
             /*********************************************************/
+            
           }// if(between_zeroANDone >= 0.5)
           else //Cell doesn't divided
           {
@@ -144,6 +146,7 @@ public class Simulation implements Runnable
       } // for all cells in the main population
       population_size = cell_population.size(); // Update the population size after the round of division
       System.out.println(current_timepoint + " " + population_size);
+      new DataAnalysis(cell_population, genome_data_subset, organism,sex);
     }// for
     System.out.println("Latest generation = " + (newest_generation));
     return cell_population;  
@@ -166,7 +169,8 @@ public class Simulation implements Runnable
       for (int chromosome_count = 0; chromosome_count < temp_genome_one[homologous_pair_count].length; chromosome_count++) 
       {// for each chromosome in each homologous pair
         for (int dna_strand_count = 0; dna_strand_count < temp_genome_one[homologous_pair_count][chromosome_count].length; dna_strand_count++) 
-        {
+        {// for each DNA strand in the chromosome
+          
           /* For each dna strand in this chromosome
           New strands will be formed such that the new combinations of double
           stranded DNA will be OS-NS and NS-OS (OS=Original Strand,
@@ -182,29 +186,38 @@ public class Simulation implements Runnable
             temp_genome_one[homologous_pair_count][chromosome_count][dna_strand_count]=1.0;
           }
           
-          
           //System.out.println(Double.toString(mother_cell_genome[homologous_pair_count][chromosome_count][dna_strand_count]));
-        }
+        }// for each DNA strand in the chromosome
+        
         // Perform the logic to model stochastic distribution of each double 
         // stranded DNA complex into either temp_genome_one or two
-        double new_zero_to_one = randomDouble();
-        if(new_zero_to_one >= 0.5)
-        {// swap the chromosome between genomes
-          double[] temp_chromosome_one, temp_chromosome_two;
+        
+        
+        if(homologous_pair_count==1)
+        {// Is this the second homologous chromosome?
+          double new_zero_to_one = randomDouble();
+          if(new_zero_to_one >= 0.5)
+          {// swap the chromosome between genomes
+            double[] temp_chromosome_one, temp_chromosome_two;
+
+            // Set the values of the temp chromosomes to the current chromosomes 
+            // being evaluated from each chromosome
+            temp_chromosome_one = temp_genome_one[homologous_pair_count][chromosome_count];
+            temp_chromosome_two = temp_genome_two[homologous_pair_count][chromosome_count];
+
+            // PRINT CHROMOSOME CONTENTS BEFORE SWAPPING AND AFTER SWAPPING
+
+            // Swap the chromosomes
+            temp_genome_one[homologous_pair_count][chromosome_count] = temp_chromosome_two;
+            temp_genome_two[homologous_pair_count][chromosome_count] = temp_chromosome_one;
+
+          }else
+          {//Don't swap chromosomes 
+          }
           
-          // Set the values of the temp chromosomes to the current chromosomes 
-          // being evaluated from each chromosome
-          temp_chromosome_one = temp_genome_one[homologous_pair_count][chromosome_count];
-          temp_chromosome_two = temp_genome_two[homologous_pair_count][chromosome_count];
-          
-          // PRINT CHROMOSOME CONTENTS BEFORE SWAPPING AND AFTER SWAPPING
-          
-          // Swap the chromosomes
-          temp_genome_one[homologous_pair_count][chromosome_count] = temp_chromosome_two;
-          temp_genome_two[homologous_pair_count][chromosome_count] = temp_chromosome_one;
-                  
-        }else
-        {/*Don't swap chromosomes*/}
+ 
+        }// If second homologous chromosome
+        
       }// for each chromosome in a homologous pair
     }// for each homologous pair
     
