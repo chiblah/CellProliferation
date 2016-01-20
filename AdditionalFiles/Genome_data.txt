@@ -1,7 +1,7 @@
 > Test test | 2
-chr1 105
-chrX 51
-chrY 51
+chr1 249698942
+chrX 156040895
+chrY 57264655
 > Homo sapiens | 23
 chr1 249698942
 chr2 242508799

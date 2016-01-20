@@ -32,7 +32,6 @@ public class Cell
 	private boolean can_divide; // Indicates the state of the cell, true if cell is at G2 and can divide
   private double[][][] genome;
   private double fraction_genome_labelled;
-  private int parent_node, right_node, left_node;
 	
   // Constructor
 	public Cell(int new_id, int new_lineage_id, int new_gen, double provided_last_div, boolean division_status, double[][][] provided_genome)
@@ -133,11 +132,13 @@ public class Cell
    * Allows the label status of this cell's genome to be changed.
    *
    * @param new_fraction_genome_labelled the new double representing fractional labelling of this cell's genome.
-   * @see kc_phd_cambridge.cellproliferation.DataAnalysis#getCellLabelDistribution(Cell new_cell)
+   * @see kc_phd_cambridge.cellproliferation.Simulation#calculateCellFractionLabelled(int index_of_cell)
    */
   public void setFractionGenomeLabelled(double new_fraction_genome_labelled)
   {
     this.fraction_genome_labelled = new_fraction_genome_labelled;
+    System.out.println("Cell " + this.cell_id + "just received " + new_fraction_genome_labelled);
+
   }// setFractionGenomeLabelled()
   
   /**
@@ -158,7 +159,7 @@ public class Cell
   @Override
 	public String toString()
 	{
-    String newStr = "Cell ID = " + this.cell_id + "; Generation = " + this.cell_gen + "; Fraction labelled = " + this.fraction_genome_labelled * 100;//+ " Division status = " + can_divide;
+    String newStr = "Cell ID = " + this.cell_id + "; Cell Lineage = " + this.cell_lineage_id +"; Generation = " + this.cell_gen + "; Fraction labelled = " + this.fraction_genome_labelled * 100;//+ " Division status = " + can_divide;
 		return newStr;
 	}// toString
 } // Class Cell

@@ -31,7 +31,8 @@ public class DataAnalysis
   private final String organism;
   private final int sex;
   private final List<String> genome_data;
-  private final int total_number_of_bases_in_genome, haploid_number;
+  private final int  haploid_number;
+  private long total_number_of_bases_in_genome;
   private double fraction_of_genome_labelled;
   private int total_labelled_bases_in_genome;
   
@@ -101,17 +102,6 @@ public class DataAnalysis
     }// For each homologous pair
     fraction_of_genome_labelled = (total_labelled_bases_in_genome/(double)total_number_of_bases_in_genome);
     new_cell.setFractionGenomeLabelled(fraction_of_genome_labelled);
-    
-    for(double[] homo_pair:chromosome_labelled_bases)
-    {
-      for(double chromo:homo_pair)
-      {
-        //System.out.println("Chromosome fraction labelled: " + chromo);
-      }
-    }
-    
-    //System.out.println("Cell: " + new_cell.getId() + ". Fraction labelled: " + fraction_of_genome_labelled);
-    //System.out.println("Total labelled bases " + total_labelled_bases_in_genome + "   Total bases in genome: " + total_number_of_bases_in_genome);
   }// getCellLabelDistribution
   
   private void writeToFile(List<String> file_contents, String file_name)

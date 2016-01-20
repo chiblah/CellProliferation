@@ -19,6 +19,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import static kc_phd_cambridge.cellproliferation.FXMLMainWindowController.new_line;
+import static kc_phd_cambridge.cellproliferation.FXMLMainWindowController.tab;
 
 /**
  *
@@ -34,6 +35,12 @@ public class Simulation implements Runnable
 	private int newest_generation = -1; // Keep track of the most recent generation of cells
 	private int id_of_last_created_cell = -1; // The cell ID of the last cell that was created. Tracked to set the ID of the next cell to be created. 
   private final int haploid_number; 
+  
+  // The ArrayList to store the growing cell population
+  private List<Cell> cell_population = new ArrayList<>(); 
+  
+  // The ArrayList to store the appropriate subset of genome data
+  List<String> genome_data_subset = new ArrayList<>();
   
   // Instance variables passed to constructor
   private final SimulationData input_parameters;
@@ -63,7 +70,7 @@ public class Simulation implements Runnable
   public void run()
   {
     //Get the chromosome sizes for this simulation according to input parameters.
-    List<String> genome_data_subset = GenomeData.getGenomeData(organism, sex);
+    genome_data_subset = GenomeData.getGenomeData(organism, sex);
     
     //Perform the simulation
     List<Cell> final_population = runSimulation();
@@ -71,9 +78,9 @@ public class Simulation implements Runnable
     //Create a DataAnalysis object for this simulation
     //new DataAnalysis(final_population, genome_data_subset, organism,sex);
     
-    final_population.stream().forEach((Cell this_cell) -> 
+    genome_data_subset.stream().forEach((String line) -> 
     {
-      //System.out.println(this_cell.toString());
+      //System.out.println("Genome data" + line);
     });// For each cell in the final population 
   }
   
@@ -87,129 +94,106 @@ public class Simulation implements Runnable
   private List<Cell> runSimulation()
   {
     //Initialise a population to be used at the start of the simulation
-    List<Cell> cell_population = initiatePopulation(initial_population_size);
+    cell_population = initiatePopulation(initial_population_size);
     System.out.println("Running =>" + input_parameters.toString());
-    
+
     int population_size = cell_population.size();
     double[][][] blank_genome = newEmptyDiploidGenome();
-		List<String> genome_data_subset = GenomeData.getGenomeData(organism, sex);
-    
-    String tab = "\t";
+
     try
     {
       try(FileWriter writer = new FileWriter("Data_Out.txt")) 
       {
-        
         //generate whatever data you want
-        writer.append("Generation" + tab + "Cell lineage" + tab + "% labelled");
+        writer.append("Cell ID" + tab+tab + "Generation" + tab + "Cell lineage" + tab + "% labelled");
         writer.append(new_line);
-        
-      
-    
-    
-    /* Declare and populate generation_tracking array anddynamically set size of
-    double[][][] generation_label_tracking = new double[initial_population_size][20][2];
-    double expected_number_of_cells_in_generation = 1;
-    
-    for(int cell_lineage = 0; cell_lineage < generation_label_tracking.length; cell_lineage++ ) 
-    {// foreach cell lineage (each cell from the initial population)
-      for(int this_generation = 0; this_generation < generation_label_tracking[cell_lineage].length; this_generation++) 
-      {// for each generation of cells
-        for(int number_of_cells = 0; number_of_cells < generation_label_tracking[cell_lineage][this_generation].length; number_of_cells++) 
-        {// for the two elements in the final dimension (storing expected and actual number of cells)
-          if(number_of_cells == 0 && this_generation != 1)
-          {// If the first elemnt (used to store expected number of cells for this generation)
-            generation_label_tracking[cell_lineage][this_generation][number_of_cells] = expected_number_of_cells_in_generation * 2;
-            System.out.println(generation_label_tracking[cell_lineage][this_generation][number_of_cells]);
-            expected_number_of_cells_in_generation = expected_number_of_cells_in_generation*2;
-          }
-        }
-      }
-    }
-    */
-    
-    //Progress through time at selected intervals for a specified duration
-		for(int current_timepoint = 0; current_timepoint < simulation_duration; current_timepoint += time_interval)
-    {
-      System.out.println(current_timepoint + " " + population_size);
-      //Perform division of all cells that can divide as determined by a random number generator and the set division threshhold
-      //As new cells are being added to the list, only go through the cells present in the population before new cells were added in this round i.e use the previous population size as max number of iterations.
-      for(int current_element = 0; current_element < population_size; current_element++)
-      {
-        Cell current_cell = cell_population.get(current_element);
-        boolean current_cell_can_divide = current_cell.getDivisionStatus();
-        if(current_cell_can_divide)
+
+        //Progress through time at selected intervals for a specified duration
+        for(int current_timepoint = 0; current_timepoint < simulation_duration; current_timepoint += time_interval)
         {
-
-          //Produce a random number, R, between ***********????!!!!!!!!!
-          double between_zero_and_one = randomDouble();
-          if(between_zero_and_one < 0.2) //The cell can divide
+          System.out.println(current_timepoint + " " + population_size);
+          //Perform division of all cells that can divide as determined by a random number generator and the set division threshhold
+          //As new cells are being added to the list, only go through the cells present in the population before new cells were added in this round i.e use the previous population size as max number of iterations.
+          for(int current_element = 0; current_element < population_size; current_element++)
           {
-            //Remove one cell from the current generation and add two to the next
-            //by changing the generation of the original cell to current_gen + 1 and
-            //creating a new cell object also in generation current_gen + 1
+            Cell current_cell = cell_population.get(current_element);
+            boolean current_cell_can_divide = current_cell.getDivisionStatus();
+            if(current_cell_can_divide)
+            {
+
+            //Produce a random number, R, between ***********????!!!!!!!!!
+            double between_zero_and_one = randomDouble();
+            if(between_zero_and_one < 0.2) //The cell can divide
+            {
+              //Remove one cell from the current generation and add two to the next
+              //by changing the generation of the original cell to current_gen + 1 and
+              //creating a new cell object also in generation current_gen + 1
 
 
-            // Change the orginal cell to daughter cell 1 by increasing its generation value by 1, from its current generation
-            //printString("Generation of parent cell = " + daughter_cell_one.getGeneration());
-            //printString("Cell ID of parent cell = " + daughter_cell_one.getId());
-            int next_generation = current_cell.getGeneration() + 1;
-            current_cell.setGeneration(next_generation);
-            
-            
-            int new_cell_lineage = current_cell.getLineageId();
-            //Create a new cell object which will become daughter cell 2, with a blank diploid genome, of same generation and 
-            // cell lineage as the newly created daughter cell 1 and 
-            cell_population.add(new  Cell(id_of_last_created_cell + 1, new_cell_lineage, next_generation, -1, CAN_DIVIDE, blank_genome));
-            id_of_last_created_cell++;
-            
+              // Change the orginal cell to daughter cell 1 by increasing its generation value by 1, from its current generation
+              //printString("Generation of parent cell = " + daughter_cell_one.getGeneration());
+              //printString("Cell ID of parent cell = " + daughter_cell_one.getId());
+              int next_generation = current_cell.getGeneration() + 1;
+              current_cell.setGeneration(next_generation);
 
-            // Store the array indices of daughter cell one and two for use by the mitosis method
-            final int daughter_cell_two = (cell_population.size() - 1); // The index of daughter cell two, the newly created cell
-            final int daughter_cell_one = current_element; //The index of the current cell which becomes daughter cell one
+              int new_cell_id = id_of_last_created_cell + 1;
+              int new_cell_lineage = current_cell.getLineageId();
+              
+              //Create a new cell object which will become daughter cell 2, with a blank diploid genome, of same generation and 
+              // cell lineage as the newly created daughter cell 1 and  
+              Cell new_cell = new  Cell(new_cell_id, new_cell_lineage, next_generation, -1, CAN_DIVIDE, blank_genome);
+              cell_population.add(new_cell);
+              id_of_last_created_cell++;
+              
+              //System.out.println("Index of Cell ID" + new_cell.getCellId() + " = " + cell_population.indexOf(new_cell));
+              
+              
 
-            mitosis(cell_population, daughter_cell_one, daughter_cell_two);
-            
-            System.out.println(cell_population.get(daughter_cell_one).toString());
-            System.out.println(cell_population.get(daughter_cell_two).toString());
-            
-            
-            
-            
-            writer.append(Integer.toString(cell_population.get(daughter_cell_one).getGeneration()) + tab+tab + Integer.toString(cell_population.get(daughter_cell_one).getLineageId()) + tab+tab + Double.toString(cell_population.get(daughter_cell_one).getFractionGenomeLabelled()));
-            writer.append(new_line);
-            writer.append(Integer.toString(cell_population.get(daughter_cell_two).getGeneration()) + tab+tab + Integer.toString(cell_population.get(daughter_cell_two).getLineageId()) + tab+tab + Double.toString(cell_population.get(daughter_cell_two).getFractionGenomeLabelled()));
-            writer.append(new_line);
-            
-            // Track the latest generation of cells.
-            if(current_cell.getGeneration() > newest_generation)
-            {newest_generation++;}
+              // Store the array indices of daughter cell one and two for use by the mitosis method
+              int daughter_cell_two = cell_population.indexOf(new_cell); // The index of daughter cell two, the newly created cell
+              int daughter_cell_one = current_element; //The index of the current cell which becomes daughter cell one
 
-          }// if(between_zeroANDone >= 0.5)
-          else //Cell doesn't divided
-          {
-            //System.out.println("Didn't divide --->" + current_cell.toString());
-          }
-        } // if the cell can divide
+              calculateCellFractionLabelled(daughter_cell_one);
+              calculateCellFractionLabelled(daughter_cell_two);
 
-        //printString(Integer.toString(cell_population.get(current_element).getGeneration()));
+              System.out.println("Before mitosis; Cell One = " + cell_population.get(daughter_cell_one).toString());
+              System.out.println("Before mitosis; Cell Two = " + cell_population.get(daughter_cell_two).toString());
 
-      } // for all cells in the main population
-      population_size = cell_population.size(); // Update the population size after the round of division
-      //System.out.println(current_timepoint + " " + population_size);
-      new DataAnalysis(cell_population, genome_data_subset, organism,sex);
-    }// for
-    System.out.println("Latest generation = " + (newest_generation));
-    
-      
-    writer.flush();
-        writer.close();
+              mitosis(daughter_cell_one, daughter_cell_two);
+
+              calculateCellFractionLabelled(daughter_cell_one);
+              calculateCellFractionLabelled(daughter_cell_two);
+
+              System.out.println("After mitosis; Cell One = " + cell_population.get(daughter_cell_one).toString());
+              System.out.println("After mitosis; Cell Two = " + cell_population.get(daughter_cell_two).toString());
+
+              writer.append(Integer.toString(cell_population.get(daughter_cell_one).getCellId()) + tab+tab +Integer.toString(cell_population.get(daughter_cell_one).getGeneration()) + tab+tab + Integer.toString(cell_population.get(daughter_cell_one).getLineageId()) + tab+tab + Double.toString(cell_population.get(daughter_cell_one).getFractionGenomeLabelled()));
+              writer.append(new_line);
+              writer.append(Integer.toString(cell_population.get(daughter_cell_two).getCellId()) + tab+tab +Integer.toString(cell_population.get(daughter_cell_two).getGeneration()) + tab+tab + Integer.toString(cell_population.get(daughter_cell_two).getLineageId()) + tab+tab + Double.toString(cell_population.get(daughter_cell_two).getFractionGenomeLabelled()));
+              writer.append(new_line + new_line);
+              // Track the latest generation of cells.
+              if(current_cell.getGeneration() > newest_generation)
+              {newest_generation++;}
+            }// if(between_zeroANDone >= 0.5)
+            else //Cell doesn't divided
+            {
+              System.out.println("Didn't divide --->" + current_cell.toString());
+            }
+          } // if the cell can divide
+          //printString(Integer.toString(cell_population.get(current_element).getGeneration()));
+        } // for all cells in the main population
+        population_size = cell_population.size(); // Update the population size after the round of division
+        //System.out.println(current_timepoint + " " + population_size);
+        //new DataAnalysis(cell_population, genome_data_subset, organism,sex);
+      }// for
+      System.out.println("Latest generation = " + (newest_generation));
+      writer.flush();
+      writer.close();
       }
     }
     catch(IOException e)
     {
     } 
-    
   return cell_population; 
   }// runSimulation
   
@@ -221,9 +205,9 @@ public class Simulation implements Runnable
    * @param cell_one the integer value for the index of the mother cell which will become daughter cell one 
    * @param cell_two the integer value for the index of daughter cell two 
    */
-  private void mitosis(List<Cell> population, int cell_one, int cell_two)
+  private void mitosis(int cell_one, int cell_two)
  {
-    double[][][] temp_genome_one = population.get(cell_one).getGenome(), temp_genome_two = newEmptyDiploidGenome();
+    double[][][] temp_genome_one = cell_population.get(cell_one).getGenome(), temp_genome_two = newEmptyDiploidGenome();
     
     for (int homologous_pair_count = 0; homologous_pair_count < temp_genome_one.length; homologous_pair_count++) 
     {// foreach homologous pair of the genome
@@ -243,7 +227,6 @@ public class Simulation implements Runnable
           {// Ignore the first strand, do this on the iteration for the second strand
             temp_genome_two[homologous_pair_count][chromosome_count][dna_strand_count] = 1.0;
             temp_genome_two[homologous_pair_count][chromosome_count][dna_strand_count-1] = temp_genome_one[homologous_pair_count][chromosome_count][dna_strand_count];
-            
             temp_genome_one[homologous_pair_count][chromosome_count][dna_strand_count]=1.0;
           }
           
@@ -279,8 +262,8 @@ public class Simulation implements Runnable
     Mitosis logic, including stochastic chromosome segregartion into daughter 
     cells is complete, now write the two temp genomes back to the cells
     */
-    population.get(cell_one).setGenome(temp_genome_one);
-    population.get(cell_two).setGenome(temp_genome_two);
+    cell_population.get(cell_one).setGenome(temp_genome_one);
+    cell_population.get(cell_two).setGenome(temp_genome_two);
   }// mitosis
   
   /**
@@ -338,5 +321,53 @@ public class Simulation implements Runnable
     return population;
   }// initiate_first_population()
     
+    /**
+     * Calculates the percentage label in a cell's genome.
+     * 
+     */
+    private void calculateCellFractionLabelled(int index_of_cell)
+    {
+      double[][] chromosome_labelled_bases = new double[haploid_number][2];
+      double[][][] genome = cell_population.get(index_of_cell).getGenome();
+      long total_labelled_bases_in_genome, total_number_of_bases_in_genome;
+      double fraction_of_genome_labelled;
+      
+      total_labelled_bases_in_genome = 0;
+      total_number_of_bases_in_genome = GenomeData.getGenomeSize(this.organism, this.sex);
+      //System.out.println(total_number_of_bases_in_genome);
+      //System.out.println("Cell " + new_cell.getId() + ": Generation " + new_cell.getGeneration());
+      for(int chromosome_count = 0; chromosome_count < genome.length; chromosome_count++)
+      {// For each homologous pair
+        double chromo_labelled_bases = 0;
+        for(int homologous_pair_count= 0; homologous_pair_count < genome[chromosome_count].length; homologous_pair_count++)
+        {// For each chromosome in a homologous pair
+          int chromosome_size;
+        
+          String[] split_chromosome_sizes = genome_data_subset.get(chromosome_count).split(",");
+          if(homologous_pair_count==0)
+          {//Homologous chromosome one
+            chromosome_size = Integer.parseInt(split_chromosome_sizes[0]);
+          }else
+          {//Homologous chromosome two
+            chromosome_size = Integer.parseInt(split_chromosome_sizes[1]);
+          }
+          for(int dna_strand_count = 0; dna_strand_count < genome[chromosome_count][homologous_pair_count].length; dna_strand_count++)
+          {// For each DNA strand in the chromosome 
+                            
+          double bases_labelled_on_strand = genome[chromosome_count][homologous_pair_count][dna_strand_count];
+          //System.out.println("Strand bases labelled " + bases_labelled_on_strand);
+          total_labelled_bases_in_genome += bases_labelled_on_strand*(double)chromosome_size; 
+          
+          chromo_labelled_bases =(bases_labelled_on_strand*(double)chromosome_size);    
+          chromosome_labelled_bases[chromosome_count][homologous_pair_count] = chromo_labelled_bases;
+        }// For each DNA strand
+        
+      }// For each chromosome in a homologous pair
+    }// For each homologous pair
+    fraction_of_genome_labelled = (total_labelled_bases_in_genome/(double)total_number_of_bases_in_genome);
+    cell_population.get(index_of_cell).setFractionGenomeLabelled(fraction_of_genome_labelled);
+    
+    
+  }// calculateCellFractionLabelled
   //*** Access methods ***//
 }

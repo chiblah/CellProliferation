@@ -221,21 +221,25 @@ public class GenomeData
    * @param sex integer value for sex, gives the combination of sex chromosome sizes to return, XX (female) or XY (male).
    * @return total_number_of_bases_in_genome the integer value for the sum of all bases on all chromosomes.
    */ 
-  public static int getGenomeSize(String target_organism, int sex)
+  public static long getGenomeSize(String target_organism, int sex)
   {
-    int total_number_of_bases_in_genome = 0;
+    long number_of_bases_in_genome = 0;
     final List<String> genome_data = getGenomeData(target_organism, sex);
     final int haploid_number = getHaploidNumber(target_organism);
     
     for(int chromosome_count = 0; chromosome_count < haploid_number; chromosome_count++)
     {
       String[] split_chromosome_sizes = genome_data.get(chromosome_count).split(",");
-      
       // The size of each chromosome in bases = the chromosome size (base pairs) x 2
-      int this_chromosome_size = Integer.parseInt(split_chromosome_sizes[0])*2 + Integer.parseInt(split_chromosome_sizes[1])*2;
-      total_number_of_bases_in_genome += this_chromosome_size;
+      
+      long this_chromosome_size = Integer.parseInt(split_chromosome_sizes[0])*2 + Integer.parseInt(split_chromosome_sizes[1])*2;
+      //System.out.println("This chromo size " + this_chromosome_size);
+
+      number_of_bases_in_genome += this_chromosome_size;
     }
-    return total_number_of_bases_in_genome;  
+    
+    //System.out.println(target_organism + "" + total_number_of_bases_in_genome);
+    return number_of_bases_in_genome;  
   }// getGenomeSize
   
   /**
@@ -244,7 +248,7 @@ public class GenomeData
    * Used to inform the user of the header lines in the genome file they have imported.
    * @return header_lines the header lines present in the imported genome data file.
    */
-  public static List<String> getGetHaderLines() 
+  public static List<String> getGetHeaderLines() 
   {
     return header_lines; 
   }// getGetHaderLines
