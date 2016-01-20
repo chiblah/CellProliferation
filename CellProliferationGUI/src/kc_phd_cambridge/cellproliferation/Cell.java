@@ -26,22 +26,24 @@ package kc_phd_cambridge.cellproliferation;
 public class Cell 
 {
   // Instance variables
-	private final int cell_id; // A unique identifier for each cell
+	private final int cell_id, cell_lineage_id; // A unique identifier for each cell, and an identifier for the cell's lineage
 	private int cell_gen; // Track the generation the cell belongs to
 	private double last_div; // The last time this cell completed M-phase. Initially set to the timepoint it was created
 	private boolean can_divide; // Indicates the state of the cell, true if cell is at G2 and can divide
   private double[][][] genome;
   private double fraction_genome_labelled;
+  private int parent_node, right_node, left_node;
 	
   // Constructor
-	public Cell(int new_id, int new_gen, double provided_last_div, boolean division_status, double[][][] provided_genome, double provided_fraction_genome_labelled)
+	public Cell(int new_id, int new_lineage_id, int new_gen, double provided_last_div, boolean division_status, double[][][] provided_genome)
 	{
 		this.cell_id = new_id;
+    this.cell_lineage_id = new_lineage_id;
 		this.cell_gen = new_gen;
 		this.last_div = provided_last_div;
 		this.can_divide = division_status;
     this.genome = provided_genome;
-    this.fraction_genome_labelled = provided_fraction_genome_labelled;
+    this.fraction_genome_labelled = 0;
 	}// Constructor
 	
 	//*** Access methods ***//
@@ -72,10 +74,20 @@ public class Cell
    *
    * @return the cellId of this cell object
    */
-  public int getId()
+  public int getCellId()
   {
     return this.cell_id;
   }// getId
+  
+   /**
+   * Provides read access for the lineage ID of this cell
+   *
+   * @return the cellLineageId of this cell object
+   */
+  public int getLineageId()
+  {
+    return this.cell_lineage_id;
+  }// getLineageId
     
   /**
    * Provides read access for the generation number of this cell
@@ -135,7 +147,7 @@ public class Cell
    */
   public double getFractionGenomeLabelled()
   {
-      return this.fraction_genome_labelled;
+      return this.fraction_genome_labelled * 100;
   }// getFractionGenomeLabelled()
   
 	/**
@@ -146,7 +158,7 @@ public class Cell
   @Override
 	public String toString()
 	{
-    String newStr = "Cell ID = " + this.cell_id + "; Generation = " + this.cell_gen; // + "; Last division timepoint = "+ this.last_div + " Division status = " + can_divide;
+    String newStr = "Cell ID = " + this.cell_id + "; Generation = " + this.cell_gen + "; Fraction labelled = " + this.fraction_genome_labelled * 100;//+ " Division status = " + can_divide;
 		return newStr;
 	}// toString
 } // Class Cell

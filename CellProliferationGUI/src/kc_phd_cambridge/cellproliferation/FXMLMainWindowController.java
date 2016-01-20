@@ -43,7 +43,7 @@ public class FXMLMainWindowController
 { 
   // FXML variables for GUI objects
   @FXML
-  private Button addSimulationButton, beginSimulationButton, chooseGenomeDataFileButton;
+  private Button addSimulationButton, beginSimulationButton, chooseGenomeDataFileButton, clearDatasets;
   @FXML
   private RadioButton sexRadioButtonF, sexRadioButtonM; // Sex radio buttons
   @FXML
@@ -102,10 +102,12 @@ public class FXMLMainWindowController
     
     if(input_data_for_simulations.isEmpty())
     {//no input data added yet  
+      clearDatasets.setDisable(true);
     }
     else
     {// a valid genome data file has been imported and at least one set of valid input data has been provided
       simTitledPane.setDisable(false);
+      clearDatasets.setDisable(false);
     }
     
     if(input_data_for_simulations == null && genome_data == null)
@@ -320,6 +322,20 @@ public class FXMLMainWindowController
     
     this.validate = enableDisableInputFields();
   }//handleChangeGenomeDataFileButtonEvent  
+  
+  /** 
+   * Evaluated when the user selects the "Clear Datasets" button.
+   * 
+   * 
+   * 
+   */
+  @FXML
+  private void handleClearDatasetsEvent(ActionEvent event) 
+  {
+    input_data_for_simulations.clear();
+    outputTextArea.clear();
+    enableDisableInputFields();
+  }
   
   /**
    *

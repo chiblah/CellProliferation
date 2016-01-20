@@ -69,7 +69,7 @@ public class DataAnalysis
     double[][] chromosome_labelled_bases = new double[haploid_number][2];
     double[][][] genome = new_cell.getGenome();
     total_labelled_bases_in_genome = 0;
-    System.out.println("Cell " + new_cell.getId() + ": Generation " + new_cell.getGeneration());
+    //System.out.println("Cell " + new_cell.getId() + ": Generation " + new_cell.getGeneration());
     for(int chromosome_count = 0; chromosome_count < genome.length; chromosome_count++)
     {// For each homologous pair
       double chromo_labelled_bases = 0;
@@ -88,7 +88,7 @@ public class DataAnalysis
         for(int dna_strand_count = 0; dna_strand_count < genome[chromosome_count][homologous_pair_count].length; dna_strand_count++)
         {// For each DNA strand in the chromosome 
           
-          System.out.println(genome[chromosome_count][homologous_pair_count][dna_strand_count]);
+          //System.out.println(genome[chromosome_count][homologous_pair_count][dna_strand_count]);
                   
           double bases_labelled_on_strand = genome[chromosome_count][homologous_pair_count][dna_strand_count];
           //System.out.println("Strand bases labelled " + bases_labelled_on_strand);
@@ -118,7 +118,7 @@ public class DataAnalysis
   {
     try
     {
-      try(FileWriter writer = new FileWriter("Gaussian.txt")) {
+      try(FileWriter writer = new FileWriter("Data_Out.txt")) {
         for(String line : file_contents)
         {
           writer.append(line);
