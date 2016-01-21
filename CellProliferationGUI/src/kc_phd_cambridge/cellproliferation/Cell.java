@@ -15,6 +15,8 @@
  */
 package kc_phd_cambridge.cellproliferation;
 
+import java.util.List;
+
 /**
  * Class for a Cell object.
  * 
@@ -137,8 +139,6 @@ public class Cell
   public void setFractionGenomeLabelled(double new_fraction_genome_labelled)
   {
     this.fraction_genome_labelled = new_fraction_genome_labelled;
-    System.out.println("Cell " + this.cell_id + "just received " + new_fraction_genome_labelled);
-
   }// setFractionGenomeLabelled()
   
   /**
@@ -151,6 +151,21 @@ public class Cell
       return this.fraction_genome_labelled * 100;
   }// getFractionGenomeLabelled()
   
+
+  public void printGenomeStatus()
+  {
+    System.out.println(this.toString());
+    for (double[][] genome1 : this.genome) {
+      // foreach homologous pair of the genome
+      for (double[] genome11 : genome1) {
+        // for each chromosome in each homologous pair
+        for (int dna_strand_count = 0; dna_strand_count < genome11.length; dna_strand_count++) {
+          // for each DNA strand in the chromosome
+          System.out.println(Double.toString(genome11[dna_strand_count]));
+        } // for each DNA strand in the chromosome
+      }
+    }
+  }
 	/**
    * Returns a string of key information about this cell.
    *
