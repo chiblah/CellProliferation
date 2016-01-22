@@ -90,7 +90,7 @@ public class Simulation implements Runnable
   //*** Helper methods ***//
   
   /**
-   *
+   * Track population dynamics of a dividing cell population.
    *
    * 
    */
@@ -111,36 +111,75 @@ public class Simulation implements Runnable
       try(FileWriter output_writer = new FileWriter(output_file_name)) 
       {
         for(int current_time = 0; current_time < simulation_duration; current_time+=time_interval)
-        {// at each time interval
+        {// at each time interval - evaluate and track cell population dynamics
           System.out.println(current_time + " <--population size at beginning = " + cell_population.size());
-          boolean breaktime = false;
-          Iterator<Cell> population_iterator = cell_population.iterator();
-          while (population_iterator.hasNext()) 
-          {
-            Cell current_cell = population_iterator.next();
-            
-            if(breaktime)
-            {
-              perform(current_cell);              
-              System.out.println(current_cell.toString());
-            }
+          Iterator<Cell> current_population = cell_population.iterator();
+          
+          int mother_cell_index_tracker = 0;
+          while (current_population.hasNext()) 
+          {// for each cell in the current population
+            Cell mother_cell = current_population.next();
+            if(mother_cell.getDivisionStatus())
+            {// current cell can divide
+              
+              //Produce a random number, R, between 0 and 1. Divide if division threshold attained
+              double number_between_zero_and_one = randomDouble();
+              if(number_between_zero_and_one < 0.2) //The cell can divide
+              {// If division threshold attained
+                
+                // Mother cell becomes daughter cell one
+                int next_generation = mother_cell.getGeneration() + 1; 
+                mother_cell.setGeneration(next_generation);// Increase the cell's generation number - making it daughter cell one
+                Cell daughter_cell_one = new Cell(mother_cell); // Perform a deep copy of the mother cell
+                
+      
+                // Create a new cell object which will become daughter cell 2, with a blank diploid genome, 
+                // of same generation and cell lineage as daughter cell one
+                int id_of_newly_created_cell = id_of_last_created_cell + 1;
+                int lineage_of_newly_created_cell = daughter_cell_one.getLineageId();
+                Cell new_cell = new  Cell(id_of_newly_created_cell, lineage_of_newly_created_cell, next_generation, -1, CAN_DIVIDE, blank_genome);
+                cell_population.add(new_cell);
+                
+                Cell daughter_cell_two = new Cell(new_cell);// Perform a deep copy of the new cell
+                
+                //Track the array indices of the two daughter cells
+                int index_of_daughter_cell_one, index_of_daughter_cell_two;
+                index_of_daughter_cell_one = mother_cell_index_tracker;
+                index_of_daughter_cell_two = cell_population.size()-1;
+                
+                //Mark unused cell variables for garbage collection
+                mother_cell = null; new_cell = null;
+                
+                // Keep track the latest generation of cells and the id of the last created cell
+                id_of_last_created_cell++;
+                if(daughter_cell_one.getGeneration() > newest_generation)
+                {newest_generation++;}
+                
+                
+                // Perform S-phase for daughter cells
+                System.out.println("Main copies before S-Phase" + new_line + cell_population.get(index_of_daughter_cell_one).toString());
+                System.out.println(cell_population.get(index_of_daughter_cell_two).toString());
+                performSPhase(daughter_cell_one, daughter_cell_two);
+                cell_population.set(index_of_daughter_cell_one, daughter_cell_one);
+                cell_population.set(index_of_daughter_cell_two, daughter_cell_one);
+                System.out.println("Second copies after S-Phase" + new_line + daughter_cell_one.toString());
+                System.out.println(daughter_cell_two.toString());
+                System.out.println("Main copies after S-Phase" + new_line + cell_population.get(index_of_daughter_cell_one).toString());
+                System.out.println(cell_population.get(index_of_daughter_cell_two).toString());
+                
+              }// If simulation threshold attained
+            }// current cell can divide
             else
             {
-              if(current_cell.equals(final_cell_to_evaluate))
-              {breaktime = true;
-            }
-              perform(current_cell); 
-              System.out.println(current_cell.toString());
-            }
-          }
+              // current cell cannot divide, do nothing
+            }// if current cell can divide - end of else
 
-            // 1 - can call methods of element
-              // 2 - can use iter.remove() to remove the current element from the list
-              // 3 - can use iter.add(...) to insert a new element into the list
-              //     between element and iter->next()
-              // 4 - can use iter.set(...) to replace the current element
+            //perform(current_cell); 
+            //System.out.println(current_cell.toString());
+            mother_cell_index_tracker++;
+          }// for each cell in the current population
 
-          final_cell_to_evaluate = cell_population.get(cell_population.size()-1);
+          
           System.out.println(current_time + " <--population size at end of timepoint = " + cell_population.size());
         }// at each time interval
       }// try(FileWriter writer
@@ -151,27 +190,10 @@ public class Simulation implements Runnable
     return cell_population; 
   }// runSimulation
   
-  private void perform(Cell mother_cell)
+  private void performSPhase(Cell cell_one, Cell cell_two)
   {
-    double between_one_two = randomDouble();
-    if(between_one_two <= 0.5)
-    {// if number meets specified threshold for division
-      int next_generation = mother_cell.getGeneration() + 1;
-      mother_cell.setGeneration(next_generation);
-
-      int new_cell_id = id_of_last_created_cell + 1;
-      int new_cell_lineage = mother_cell.getLineageId();
-
-      //Create a new cell object which will become daughter cell 2, with a blank diploid genome, of same generation and
-      // cell lineage as the newly created daughter cell 1 and
-      Cell new_cell = new  Cell(new_cell_id, new_cell_lineage, next_generation, -1, CAN_DIVIDE, blank_genome);
-      cell_population.add(new_cell);
-      System.out.println("DIVISION");
-      id_of_last_created_cell++;
-    }// if number meets specified threshold for division
-    else
-    {//DO NOTHING:No division event
-    }// if number meets specified threshold for division
+    cell_one.setFractionGenomeLabelled(STRAND_FULLY_LABELLED);
+    cell_two.setFractionGenomeLabelled(200.0);
   }
   
   /**

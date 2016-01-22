@@ -47,6 +47,22 @@ public class Cell
     this.fraction_genome_labelled = 0;
 	}// Constructor
 	
+  /**
+   * Copy constructor
+   * @param source the Cell instance being copied
+   */
+  public Cell(Cell source) 
+  {
+    cell_id = source.cell_id;
+    cell_lineage_id = source.cell_lineage_id;
+		cell_gen = source.cell_gen;
+		last_div = source.last_div;
+		can_divide = source.can_divide;
+    genome = source.genome;
+    fraction_genome_labelled = source.fraction_genome_labelled;
+  }
+  
+  
 	//*** Access methods ***//
 	
 	/**
