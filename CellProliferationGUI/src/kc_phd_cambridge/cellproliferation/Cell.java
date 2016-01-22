@@ -143,6 +143,7 @@ public class Cell
    */
   public void setGenome(double[][][] new_genome)
   {
+    System.out.println("GENOME EDITED " + this.toString());
     this.genome = new_genome;
   }// setGenome
   
@@ -164,7 +165,7 @@ public class Cell
    */
   public double getFractionGenomeLabelled()
   {
-      return this.fraction_genome_labelled * 100;
+      return this.fraction_genome_labelled;
   }// getFractionGenomeLabelled()
   
 

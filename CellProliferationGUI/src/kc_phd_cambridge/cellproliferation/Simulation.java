@@ -100,11 +100,6 @@ public class Simulation implements Runnable
     cell_population = initiatePopulation(initial_population_size);
     System.out.println("Running =>" + input_parameters.toString());
 
-    // Track the size of the current population before more cells are addded
-    int index_of_final_cell_to_evaluate = cell_population.size()-1;
-    Cell final_cell_to_evaluate = cell_population.get(cell_population.size()-1);
-    
-
     try
     {
       String output_file_name = input_parameters.toString();
@@ -158,19 +153,41 @@ public class Simulation implements Runnable
                 
                 
                 // Perform S-phase for daughter cells
-                System.out.println("Main copies before S-Phase" + new_line + cell_population.get(index_of_daughter_cell_one).toString());
-                System.out.println(cell_population.get(index_of_daughter_cell_two).toString());
+                System.out.println("Main copies before S-Phase");
+                cell_population.get(index_of_daughter_cell_one).printGenomeStatus();
+                cell_population.get(index_of_daughter_cell_two).printGenomeStatus();
+                System.out.println(new_line);
+                
+                System.out.println("Second copies before S-Phase");
+                daughter_cell_one.printGenomeStatus();
+                daughter_cell_two.printGenomeStatus();
+                System.out.println(new_line);
                 
                 performSPhase(daughter_cell_one, daughter_cell_two);
                 
+                calculateCellFractionLabelled(daughter_cell_one);
+                calculateCellFractionLabelled(daughter_cell_two);
+                
                 cell_population.set(index_of_daughter_cell_one, daughter_cell_one);
                 cell_population.set(index_of_daughter_cell_two, daughter_cell_two);
-                System.out.println("Second copies after S-Phase" + new_line + daughter_cell_one.toString());
-                System.out.println(daughter_cell_two.toString());
-                System.out.println("Main copies after S-Phase" + new_line + cell_population.get(index_of_daughter_cell_one).toString());
-                System.out.println(cell_population.get(index_of_daughter_cell_two).toString());
+
+                System.out.println("Main copies after S-Phase");
+                cell_population.get(index_of_daughter_cell_one).printGenomeStatus();
+                cell_population.get(index_of_daughter_cell_two).printGenomeStatus();
+                System.out.println(new_line);
                 
-              }// If simulation threshold attained
+                System.out.println("Second copies after S-Phase");
+                daughter_cell_one.printGenomeStatus();
+                daughter_cell_two.printGenomeStatus();
+                System.out.println(new_line);System.out.println(new_line);
+                
+                daughter_cell_one = null;
+                daughter_cell_one = null;
+                cell_population.stream().forEach((Cell cell) -> 
+                {
+                  cell.printGenomeStatus();
+                });// For each cell in the final population
+              }// If simulation threshold attained 
             }// current cell can divide
             else
             {
@@ -182,7 +199,6 @@ public class Simulation implements Runnable
             mother_cell_index_tracker++;
           }// for each cell in the current population
 
-          
           System.out.println(current_time + " <--population size at end of timepoint = " + cell_population.size());
         }// at each time interval
       }// try(FileWriter writer
@@ -193,26 +209,81 @@ public class Simulation implements Runnable
     return cell_population; 
   }// runSimulation
   
-  private void performSPhase(Cell cell_one, Cell cell_two)
-  {
-    cell_one.setFractionGenomeLabelled(50);
-    cell_two.setFractionGenomeLabelled(20);
-  }
-  
   /**
-   * Models DNA synthesis during S-Phase, takes the genome from a mother cell and
-   * produces two genomes for two daughter cells; also handles stochastic 
-   * chromosome segregation into daughter cell one or two.
+   * Models DNA synthesis during S-Phase, takes the genome from a mother cell 
+   * (daughter_cell_one) and produces two genomes for two daughter cells; also 
+   * handles stochastic chromosome segregation into daughter cell one or two.
    * 
-   * @param cell_one the integer value for the index of the mother cell which will become daughter cell one 
-   * @param cell_two the integer value for the index of daughter cell two 
+   * @param cell_one the Cell daughter cell one
+   * @param cell_two the Cell daughter cell two
    */
-  private void mitosis(int cell_one, int cell_two)
+  private void performSPhase(Cell daughter_cell_one, Cell daughter_cell_two)
   {
+    double[][][] temp_genome_one = daughter_cell_one.getGenome(), temp_genome_two = newEmptyDiploidGenome();
+
+    for (int homologous_pair_count = 0; homologous_pair_count < temp_genome_one.length; homologous_pair_count++)
+    {// foreach homologous pair of the genome
+      for (int chromosome_count = 0; chromosome_count < temp_genome_one[homologous_pair_count].length; chromosome_count++)
+      {// for each chromosome in each homologous pair
+        for (int dna_strand_count = 0; dna_strand_count < temp_genome_one[homologous_pair_count][chromosome_count].length; dna_strand_count++)
+        {// for each DNA strand in the chromosome
+          
+          /* For each dna strand in this chromosome
+          New strands will be formed such that the new combinations of double
+          stranded DNA will be OS-NS and NS-OS (OS=Original Strand,
+          NS=New Strand). The logic to produce these combinations of double
+          stranded DNA is handled here.
+          */
+
+          if(dna_strand_count == 1)
+          {// Ignore the first strand, do this on the iteration for the second strand
+            temp_genome_two[homologous_pair_count][chromosome_count][dna_strand_count] = temp_genome_one[homologous_pair_count][chromosome_count][dna_strand_count];
+            temp_genome_two[homologous_pair_count][chromosome_count][dna_strand_count-1] = 1.0;
+            temp_genome_one[homologous_pair_count][chromosome_count][dna_strand_count]=1.0;
+          }// If the second DNA strand
+        }// for each DNA strand
+        
+        // Perform the logic to model stochastic distribution of each double
+        // stranded DNA complex into daughter cells
+        if(homologous_pair_count==1)
+        {// Is this the second homologous chromosome, perform stochastic segregation of chromosomes into daughter cells
+          double new_zero_to_one = randomDouble();
+          
+          if(new_zero_to_one >= 0.5)
+          {// swap the chromosome between genomes
+            double[] temp_chromosome_one, temp_chromosome_two;
+
+            // Set the values of the temp chromosomes to the current chromosomes
+            // being evaluated from each chromosome
+            temp_chromosome_one = temp_genome_one[homologous_pair_count][chromosome_count];
+            temp_chromosome_two = temp_genome_two[homologous_pair_count][chromosome_count];
+
+            // Swap the chromosomes
+            temp_genome_one[homologous_pair_count][chromosome_count] = temp_chromosome_two;
+            temp_genome_two[homologous_pair_count][chromosome_count] = temp_chromosome_one;
+           
+            temp_chromosome_one = null;
+                    temp_chromosome_two = null;
+          }else
+          {//Don't swap chromosomes
+          }
+        }// If second homologous chromosome
+      }// for each chromosome in each homologous pair
+    }// foreach homologous pair of the genome
     
-  }// mitosis
+    // Write the new genomes back into the corresponding daughter cells
+    daughter_cell_one.setGenome(temp_genome_one);
+    daughter_cell_two.setGenome(temp_genome_two);
+    temp_genome_one = null;
+    temp_genome_two = null;
+  }// performSPhase
   
-  public void calculateCellFractionLabelled(int cell_index)
+   /**
+   * Calculates the label percentage in a cell's genome.
+   * 
+   * @param cell the Cell whose percentage genome is being calculated
+   */
+  private void calculateCellFractionLabelled(Cell cell)
   {
     double[][] chromosome_labelled_bases = new double[haploid_number][2];
     long total_labelled_bases_in_genome, total_number_of_bases_in_genome;
@@ -220,10 +291,10 @@ public class Simulation implements Runnable
     total_labelled_bases_in_genome = 0;
     total_number_of_bases_in_genome = GenomeData.getGenomeSize(organism, sex);
 
-    for(int chromosome_count = 0; chromosome_count < cell_population.get(cell_index).getGenome().length; chromosome_count++)
+    for(int chromosome_count = 0; chromosome_count < cell.getGenome().length; chromosome_count++)
     {// For each homologous pair
       double chromo_labelled_bases;
-      for(int homologous_pair_count= 0; homologous_pair_count < cell_population.get(cell_index).getGenome().length; homologous_pair_count++)
+      for(int homologous_pair_count= 0; homologous_pair_count < cell.getGenome().length; homologous_pair_count++)
       {// For each chromosome in a homologous pair
         int chromosome_size;
         String[] split_chromosome_sizes = genome_data_subset.get(chromosome_count).split(",");
@@ -234,16 +305,16 @@ public class Simulation implements Runnable
         {//Homologous chromosome two
           chromosome_size = Integer.parseInt(split_chromosome_sizes[1]);
         }
-        for(int dna_strand_count = 0; dna_strand_count < cell_population.get(cell_index).getGenome()[chromosome_count][homologous_pair_count].length; dna_strand_count++)
+        for(int dna_strand_count = 0; dna_strand_count < cell.getGenome()[chromosome_count][homologous_pair_count].length; dna_strand_count++)
         {// For each DNA strand in the chromosome 
-          double bases_labelled_on_strand = cell_population.get(cell_index).getGenome()[chromosome_count][homologous_pair_count][dna_strand_count];
+          double bases_labelled_on_strand = cell.getGenome()[chromosome_count][homologous_pair_count][dna_strand_count];
           total_labelled_bases_in_genome += bases_labelled_on_strand*(double)chromosome_size; 
           chromo_labelled_bases =(bases_labelled_on_strand*(double)chromosome_size);    
           chromosome_labelled_bases[chromosome_count][homologous_pair_count] = chromo_labelled_bases;
         }// For each DNA strand
       }// For each chromosome in a homologous pair
     }// For each homologous pair
-    cell_population.get(cell_index).setFractionGenomeLabelled(total_labelled_bases_in_genome/(double)total_number_of_bases_in_genome);
+    cell.setFractionGenomeLabelled((total_labelled_bases_in_genome/(double)total_number_of_bases_in_genome));
   }// calculateCellFractionLabelled
   
   /**
