@@ -146,6 +146,7 @@ public class Simulation implements Runnable
                 int index_of_daughter_cell_one, index_of_daughter_cell_two;
                 index_of_daughter_cell_one = mother_cell_index_tracker;
                 index_of_daughter_cell_two = cell_population.size()-1;
+                System.out.println(index_of_daughter_cell_one + " " + index_of_daughter_cell_two);
                 
                 //Mark unused cell variables for garbage collection
                 mother_cell = null; new_cell = null;
@@ -159,9 +160,11 @@ public class Simulation implements Runnable
                 // Perform S-phase for daughter cells
                 System.out.println("Main copies before S-Phase" + new_line + cell_population.get(index_of_daughter_cell_one).toString());
                 System.out.println(cell_population.get(index_of_daughter_cell_two).toString());
+                
                 performSPhase(daughter_cell_one, daughter_cell_two);
+                
                 cell_population.set(index_of_daughter_cell_one, daughter_cell_one);
-                cell_population.set(index_of_daughter_cell_two, daughter_cell_one);
+                cell_population.set(index_of_daughter_cell_two, daughter_cell_two);
                 System.out.println("Second copies after S-Phase" + new_line + daughter_cell_one.toString());
                 System.out.println(daughter_cell_two.toString());
                 System.out.println("Main copies after S-Phase" + new_line + cell_population.get(index_of_daughter_cell_one).toString());
@@ -192,8 +195,8 @@ public class Simulation implements Runnable
   
   private void performSPhase(Cell cell_one, Cell cell_two)
   {
-    cell_one.setFractionGenomeLabelled(STRAND_FULLY_LABELLED);
-    cell_two.setFractionGenomeLabelled(200.0);
+    cell_one.setFractionGenomeLabelled(50);
+    cell_two.setFractionGenomeLabelled(20);
   }
   
   /**
