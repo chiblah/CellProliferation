@@ -18,7 +18,7 @@ package kc_phd_cambridge.cellproliferation;
 import java.util.List;
 
 /**
- * Class for a Cell object.
+ * Representation of a Cell object.
  * 
  * Store the variables for the various properties of each cell as well as
  * methods to gain read or modify the values of editable variables.
@@ -143,7 +143,6 @@ public class Cell
    */
   public void setGenome(double[][][] new_genome)
   {
-    System.out.println("GENOME EDITED " + this.toString());
     this.genome = new_genome;
   }// setGenome
   
