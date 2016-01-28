@@ -59,10 +59,10 @@ public class DataAnalysis
     this.total_number_of_bases_in_genome = GenomeData.getGenomeSize(this.organism, this.sex);
     this.haploid_number = GenomeData.getHaploidNumber(this.organism);
     this.latest_generation = new_latest_generation;
-    this.total_number_of_lineages = initial_population_size-1;
+    this.total_number_of_lineages = initial_population_size;
     
-    int[][] expected_number_of_cells_in_each_generation = new int[latest_generation][1];
-    String[][] generation_percentages = new String[total_number_of_lineages-1][latest_generation];
+    int[][] expected_number_of_cells_in_each_generation = new int[latest_generation+1][1];
+    String[][] generation_percentages = new String[total_number_of_lineages][latest_generation+1];
     
     System.out.println(total_number_of_lineages + " " + latest_generation);
     
@@ -73,7 +73,10 @@ public class DataAnalysis
       cells_in_generation = cells_in_generation * 2;
       expected_number_of_cells_in_each_generation[count][0] = cells_in_generation;
     }
-    
+    for(int count = 0; count < expected_number_of_cells_in_each_generation.length; count++)
+    {
+      System.out.println("Generation: " + count + " Number of cells = " + expected_number_of_cells_in_each_generation[count][0]);
+    }
     
     for(int count = 0; count < generation_percentages.length; count++)
     {
@@ -106,7 +109,7 @@ public class DataAnalysis
         String current = generation_percentages[cell_lineage][cell_generation];
         generation_percentages[cell_lineage][cell_generation] = current + percentage_labelled;
         
-        System.out.println(s); 
+        System.out.println(generation_percentages[cell_lineage][cell_generation]); 
       } 
       fr.close();
     } catch (FileNotFoundException ex) 
@@ -120,6 +123,7 @@ public class DataAnalysis
      {
        for(int count2 = 0; count2 < generation_percentages[count1].length; count1++)
        {
+         System.out.println("" + count1 + " " + count2 + "Dim one length - 1 = " + (generation_percentages.length-1));
          System.out.println("Lineage: " + count1 +" Generation:" + count2 + " = " + generation_percentages[count1][count2]); 
        }
      }
