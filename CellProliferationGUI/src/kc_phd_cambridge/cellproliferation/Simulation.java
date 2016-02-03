@@ -33,7 +33,7 @@ public class Simulation implements Runnable
   private static final double STRAND_FULLY_LABELLED = 1.0, STRAND_UNLABELLED = 0.0, GENOME_UNLABELLED = 0.0;
   private static final boolean CAN_DIVIDE = true, CANT_DIVIDE = false;
   
-	private int newest_generation = -1; // Keep track of the most recent generation of cells
+	private int[] newest_generation; // Keep track of the most recent generation of cells in each lineage
 	private int id_of_last_created_cell = -1; // The cell ID of the last cell that was created. Tracked to set the ID of the next cell to be created. 
   private final int haploid_number; 
   
@@ -60,13 +60,18 @@ public class Simulation implements Runnable
     this.input_parameters = new_input_parameters;
     
    // Set local input parameters by reading from the SimulationData object passed to the constructor
-   organism = input_parameters.getOrganism();
-   sex = input_parameters.getSex();
-   initial_population_size = input_parameters.getInitialPopulationSize();
-   simulation_duration = input_parameters.getSimulationDuration();
-   time_interval = input_parameters.getTimeInterval();
-   haploid_number = input_parameters.getHaploidNumber();
-   blank_genome = newEmptyDiploidGenome();
+   this.organism = input_parameters.getOrganism();
+   this.sex = input_parameters.getSex();
+   this.initial_population_size = input_parameters.getInitialPopulationSize();
+   this.simulation_duration = input_parameters.getSimulationDuration();
+   this.time_interval = input_parameters.getTimeInterval();
+   this.haploid_number = input_parameters.getHaploidNumber();
+   this.blank_genome = newEmptyDiploidGenome();
+   this.newest_generation = new int[this.initial_population_size];
+   for(int lineage =0; lineage < newest_generation.length; lineage++)
+   {
+     newest_generation[lineage] = -1;
+   }
   }
   
   @Override
@@ -78,10 +83,20 @@ public class Simulation implements Runnable
     //Perform the simulation
     String name_of_results_file = runSimulation();
     
+    
+    int lineage_count = 0;
+    for(int number_of_cells: newest_generation)
+    {
+      System.out.println("Lineage " + lineage_count + "Highest generation = " + number_of_cells);
+      lineage_count++;
+    }
+    
     //Create a DataAnalysis object for this simulation
     new DataAnalysis(name_of_results_file, genome_data_subset, organism,sex, newest_generation, initial_population_size);
     
-    genome_data_subset.stream().forEach((String line) -> 
+    
+    
+    genome_data_subset.forEach((String line) -> 
     {
       //System.out.println("Genome data" + line);
     });// For each cell in the final population 
@@ -153,8 +168,8 @@ public class Simulation implements Runnable
                 
                 // Keep track the latest generation of cells and the id of the last created cell
                 id_of_last_created_cell++;
-                if(daughter_cell_one.getGeneration() > newest_generation)
-                {newest_generation++;}
+                if(daughter_cell_one.getGeneration() > newest_generation[daughter_cell_one.getLineageId()])
+                {newest_generation[daughter_cell_one.getLineageId()]++;}
                 
                 /*
                 // Perform S-phase for daughter cells
@@ -347,12 +362,12 @@ public class Simulation implements Runnable
     
         
     // Create the starting population of cells, setting all cells to generation 0
-    for (int counter = 0; counter < required_population_size; counter++)
+    for (int this_cell = 0; this_cell < required_population_size; this_cell++)
     {
       EmptyDiploidGenome diploid_genome_creator = new EmptyDiploidGenome(haploid_number);
       double[][][] diploid_genome = diploid_genome_creator.getGenome();
     
-      int cell_generation = this.newest_generation + 1, last_div = -1;
+      int cell_generation = this.newest_generation[this_cell] + 1, last_div = -1;
       // Fill the empty genome with unlabelled DNA strands
       for(double[][] homologous_pair : diploid_genome) 
       {// foreach homologous pair of the genome
@@ -366,15 +381,15 @@ public class Simulation implements Runnable
         }
       }
       
-      int cell_id = counter;
+      int cell_id = this_cell;
       
       // Create a new Cell object, cell IDs ranging from 0 to population size, cell
       // lineage IDs are also identical to the cell IDs of each cell in the initial
       // population, all generation 0 with an unlabelled diploid genome
       population.add(new  Cell(cell_id, cell_id, cell_generation, last_div, CAN_DIVIDE, diploid_genome)); 
       id_of_last_created_cell = cell_id; // Track the id of the last created cell
+      this.newest_generation[this_cell]++;
     }// for
-    this.newest_generation++;
     return population;
   }// initiate_first_population()
  

@@ -1,0 +1,25 @@
+		Lineage 0
+Generation 0
+Generation 1
+Generation 2
+12.5%
+37.5%
+62.068460374970385%
+75.0%
+Generation 3
+		Lineage 1
+Generation 0
+Generation 1
+Generation 2
+25.0%
+37.5%
+50.0%
+75.0%
+Generation 3
+12.931539625029611%
+37.5%
+62.5%
+87.5%
+		Lineage 2
+Generation 0
+Generation 1
