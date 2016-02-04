@@ -15,8 +15,10 @@
  */
 package kc_phd_cambridge.cellproliferation;
 
+import java.util.List;
+
 /**
- * Class for a Cell object.
+ * Representation of a Cell object.
  * 
  * Store the variables for the various properties of each cell as well as
  * methods to gain read or modify the values of editable variables.
@@ -26,7 +28,7 @@ package kc_phd_cambridge.cellproliferation;
 public class Cell 
 {
   // Instance variables
-	private final int cell_id; // A unique identifier for each cell
+	private final int cell_id, cell_lineage_id; // A unique identifier for each cell, and an identifier for the cell's lineage
 	private int cell_gen; // Track the generation the cell belongs to
 	private double last_div; // The last time this cell completed M-phase. Initially set to the timepoint it was created
 	private boolean can_divide; // Indicates the state of the cell, true if cell is at G2 and can divide
@@ -34,16 +36,33 @@ public class Cell
   private double fraction_genome_labelled;
 	
   // Constructor
-	public Cell(int new_id, int new_gen, double provided_last_div, boolean division_status, double[][][] provided_genome, double provided_fraction_genome_labelled)
+	public Cell(int new_id, int new_lineage_id, int new_gen, double provided_last_div, boolean division_status, double[][][] provided_genome)
 	{
 		this.cell_id = new_id;
+    this.cell_lineage_id = new_lineage_id;
 		this.cell_gen = new_gen;
 		this.last_div = provided_last_div;
 		this.can_divide = division_status;
     this.genome = provided_genome;
-    this.fraction_genome_labelled = provided_fraction_genome_labelled;
+    this.fraction_genome_labelled = 0;
 	}// Constructor
 	
+  /**
+   * Copy constructor
+   * @param source the Cell instance being copied
+   */
+  public Cell(Cell source) 
+  {
+    cell_id = source.cell_id;
+    cell_lineage_id = source.cell_lineage_id;
+		cell_gen = source.cell_gen;
+		last_div = source.last_div;
+		can_divide = source.can_divide;
+    genome = source.genome;
+    fraction_genome_labelled = source.fraction_genome_labelled;
+  }
+  
+  
 	//*** Access methods ***//
 	
 	/**
@@ -72,10 +91,20 @@ public class Cell
    *
    * @return the cellId of this cell object
    */
-  public int getId()
+  public int getCellId()
   {
     return this.cell_id;
   }// getId
+  
+   /**
+   * Provides read access for the lineage ID of this cell
+   *
+   * @return the cellLineageId of this cell object
+   */
+  public int getLineageId()
+  {
+    return this.cell_lineage_id;
+  }// getLineageId
     
   /**
    * Provides read access for the generation number of this cell
@@ -121,7 +150,7 @@ public class Cell
    * Allows the label status of this cell's genome to be changed.
    *
    * @param new_fraction_genome_labelled the new double representing fractional labelling of this cell's genome.
-   * @see kc_phd_cambridge.cellproliferation.DataAnalysis#getCellLabelDistribution(Cell new_cell)
+   * @see kc_phd_cambridge.cellproliferation.Simulation#calculateCellFractionLabelled(int index_of_cell)
    */
   public void setFractionGenomeLabelled(double new_fraction_genome_labelled)
   {
@@ -138,6 +167,21 @@ public class Cell
       return this.fraction_genome_labelled;
   }// getFractionGenomeLabelled()
   
+
+  public void printGenomeStatus()
+  {
+    System.out.println(this.toString());
+    for (double[][] genome1 : this.genome) {
+      // foreach homologous pair of the genome
+      for (double[] genome11 : genome1) {
+        // for each chromosome in each homologous pair
+        for (int dna_strand_count = 0; dna_strand_count < genome11.length; dna_strand_count++) {
+          // for each DNA strand in the chromosome
+          System.out.println(Double.toString(genome11[dna_strand_count]));
+        } // for each DNA strand in the chromosome
+      }
+    }
+  }
 	/**
    * Returns a string of key information about this cell.
    *
@@ -146,7 +190,7 @@ public class Cell
   @Override
 	public String toString()
 	{
-    String newStr = "Cell ID = " + this.cell_id + "; Generation = " + this.cell_gen; // + "; Last division timepoint = "+ this.last_div + " Division status = " + can_divide;
+    String newStr = "Cell ID = " + this.cell_id + "; Cell Lineage = " + this.cell_lineage_id +"; Generation = " + this.cell_gen + "; Fraction labelled = " + this.fraction_genome_labelled * 100;//+ " Division status = " + can_divide;
 		return newStr;
 	}// toString
 } // Class Cell
