@@ -76,7 +76,7 @@ public class SimulationData
   /**
    * Provides read access to the 'simulation duration' value stored in this input parameter set
    *
-   * @return the value of 'simulation duration'.
+   * @return the value of 'Simulation Duration'.
    */
   public int getSimulationDuration()
   {
@@ -84,9 +84,9 @@ public class SimulationData
   }// getSimulationDuration
   
   /**
-   * Provides read access to the 'time interval' value stored in this input parameter set
+   * Provides read access to the integer value of 'Time Interval' stored in this input parameter set
    *
-   * @return the value of 'time interval'.
+   * @return the integer value of 'Time Interval'.
    */
   public int getTimeInterval()
   {
@@ -107,6 +107,6 @@ public class SimulationData
   public String toString()
   {
     String sex_string = this.sex == 1 ? "Female" : "Male";
-    return "Oganism: " + this.organism + ", Sex: " + sex_string + ", Initial Population Size: " + this.initial_population_size + ", Simulation Duration: " + this.simulation_duration + ", Time Interval: "+ this.time_interval + ", Haploid #: " + haploid_number; 
+    return "Organism=" + this.organism + ", Sex=" + sex_string + ", Init_Pop=" + this.initial_population_size + ", Sim_Duration=" + this.simulation_duration + ", Interval="+ this.time_interval + ", Haploid#=: " + haploid_number; 
   }// toString
 }// SimulationData

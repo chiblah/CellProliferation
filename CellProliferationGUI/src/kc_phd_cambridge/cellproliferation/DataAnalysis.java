@@ -46,13 +46,14 @@ public class DataAnalysis
   
   /**
    *
-   * @param new_population the array list of cells in the final population. 
-   * @param new_genome_data the string array of chromosome sizes required to
-   * perform fractional DNA synthesis calculations.
+   * @param first_results_file
+   * @param new_genome_data the string array of chromosome sizes required to perform fractional DNA synthesis calculations.
    * @param new_organism the string representation of the organism.
    * @param new_sex the integer value of the sex of the organism.
+   * @param new_highest_generations
+   * @param initial_population_size
    */
-  public DataAnalysis(String file_name, List<String> new_genome_data, String new_organism, int new_sex, int[] new_highest_generations, int initial_population_size)
+  public DataAnalysis(String first_results_file, List<String> new_genome_data, String new_organism, int new_sex, int[] new_highest_generations, int initial_population_size)
 	{
     //this.cell_population = new_population;
     this.genome_data = new_genome_data;
@@ -71,7 +72,7 @@ public class DataAnalysis
         highest_generation_tracker = highest_gen;
     }
 
-    // Calculate the expected number of cells up to the global highest generation of any lineage
+    // Calculate the expected number of cells up to the global highest generation of all lineage
     int[] expected_number_of_cells_in_each_generation = new int[highest_generation_tracker+1];// + 1 to tak einto account generation 0
     int cells_in_generation = 1;
     expected_number_of_cells_in_each_generation[0] = cells_in_generation;// Set generation 0 expected number of cells to 1
@@ -103,16 +104,15 @@ public class DataAnalysis
     }
     
 
-    FileReader fr; 
+    FileReader file_reader; 
     try 
     {
-      fr = new FileReader(file_name);
-      BufferedReader br = new BufferedReader(fr); 
+      file_reader = new FileReader(first_results_file);
+      BufferedReader buffered_reader = new BufferedReader(file_reader); 
       String s; 
-      while((s = br.readLine()) != null) 
+      while((s = buffered_reader.readLine()) != null) 
       { 
         String[] split_line = s.split(tab + tab);
-        //while(split_line[0] !=)
         int cell_id, cell_generation, cell_lineage; 
         double percentage_labelled;
         cell_id = Integer.parseInt(split_line[0]);
@@ -129,13 +129,8 @@ public class DataAnalysis
           generation_percentages[cell_lineage][cell_generation].append(to_add) ;
         }
         System.out.println(cell_lineage +" " + cell_generation);
-        
-        
-        
-        
-        //System.out.println(generation_percentages[cell_lineage][cell_generation]); 
       } 
-      fr.close();
+      file_reader.close();
     } catch (FileNotFoundException ex) 
     {
       Logger.getLogger(DataAnalysis.class.getName()).log(Level.SEVERE, null, ex);
@@ -147,56 +142,27 @@ public class DataAnalysis
     // Calculate string of results to write to file
     List<String> final_generation_to_output = new ArrayList<>();
     for(int lineage = 0; lineage < generation_percentages.length; lineage++)
-    {
-      final_generation_to_output.add("LINEAGE = " + lineage);
+    {// for each lineage
+      final_generation_to_output.add("LINEAGE," + lineage);
 
       generation_percentages[lineage][0] = new StringBuilder("0.0");//Set all generation 0 values to 0
       for(int generation = 0; generation < generation_percentages[lineage].length; generation++)
-      {
-        final_generation_to_output.add("GENERATION = " + generation );
+      {// for each generation in the current lineage
+        //final_generation_to_output.add();
         String this_line = generation_percentages[lineage][generation].toString();
         String[] split_line = this_line.split(",");
         System.out.println("Line " + this_line + " Elements = " + split_line.length);
         
-        double perc = 0;
+        double percentage_label_accumalator = 0;
         for(String percentage:split_line)
-        {
-          perc += Double.parseDouble(percentage);
-          //System.out.println();
-        }
-        final_generation_to_output.add(Double.toString(perc/split_line.length));
-      }
-    }
-    
-    /*// Calculate string of results to write to file
-    List<String> final_generation_labels = new ArrayList<>();
-    for(int lineage_count = 0; lineage_count < generation_percentages.length; lineage_count++)
-    {// For each lineage
-      final_generation_labels.add(tab + tab + "Lineage " + lineage_count);
-      generation_percentages[lineage_count][0] = new StringBuilder("0.0");//Set all generation 0 values to 0
-      for(int generation_count = 0; generation_count < generation_percentages[lineage_count].length; generation_count++)
-      {// For each generation in each lineage
-        final_generation_labels.add("Generation " + generation_count);
-        String this_line = generation_percentages[lineage_count][generation_count].toString();
-        String[] split_line = this_line.split(",");
-        
-        System.out.println("YOOO" + this_line);
-        
-        double label_percent_accumulator = 0.0;
-        for(int this_count = 0; this_count < split_line.length; this_count++)
-        {
-          System.out.println("Element " + this_count +" ="+split_line[this_count]);
-          label_percent_accumulator += Double.parseDouble(split_line[this_count]);
-          if(count == split_line.length)
-          {// if the final cell's percentage for this generation
-            System.out.println("Last index " + "Accum = " + label_percent_accumulator + " total elements = " + split_line.length);
-            final_generation_labels.add((label_percent_accumulator/(split_line.length-1)) + "%");
-          }
-        }
-      }
-    }*/
-    
-    writeToFile(final_generation_to_output, "Final Label Percentages");
+        {// for each element in the split line
+          percentage_label_accumalator += Double.parseDouble(percentage);
+        }// for each element in the split line
+        int number_of_cells_in_this_generation = split_line.length;
+        final_generation_to_output.add("GENERATION," + generation + "," + Double.toString(percentage_label_accumalator/number_of_cells_in_this_generation));
+      }// for each generation in the current lineage
+    }// for each lineage   
+    writeToFile(final_generation_to_output, "Final Label Percentages - " + first_results_file + ".csv");
     
     /*TODO
     1. Calculate B, the toal number of bases in the genome

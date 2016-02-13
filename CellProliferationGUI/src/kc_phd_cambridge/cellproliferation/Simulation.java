@@ -80,7 +80,7 @@ public class Simulation implements Runnable
     //Get the chromosome sizes for this simulation according to input parameters.
     genome_data_subset = GenomeData.getGenomeData(organism, sex);
     
-    //Perform the simulation
+    //Perform the simulation and generate an output file name
     String name_of_results_file = runSimulation();
     
     
@@ -111,7 +111,7 @@ public class Simulation implements Runnable
    */
   private String runSimulation()
   {
-    String output_file_name = input_parameters.toString();
+    final String output_file_name = input_parameters.toString();
     //Initialise a population to be used at the start of the simulation
     cell_population = initiatePopulation(initial_population_size);
     System.out.println("Running =>" + input_parameters.toString());
