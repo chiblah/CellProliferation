@@ -43,7 +43,7 @@ public class FXMLMainWindowController
 { 
   // FXML variables for GUI objects
   @FXML
-  private Button addSimulationButton, beginSimulationButton, chooseGenomeDataFileButton;
+  private Button addSimulationButton, beginSimulationButton, chooseGenomeDataFileButton, clearDatasets;
   @FXML
   private RadioButton sexRadioButtonF, sexRadioButtonM; // Sex radio buttons
   @FXML
@@ -60,7 +60,7 @@ public class FXMLMainWindowController
   private boolean organism_input_valid = false, sex_input_valid = false, init_pop_input_valid = false, sim_dur_input_valid = false, interval_input_valid = false;
   
   public static final boolean CLEAR_CONTENT = true, DONT_CLEAR_CONTENTS = false; // Whether to clear the contents of the TextArea   
-  public static final String new_line = System.lineSeparator();
+  public static final String new_line = System.lineSeparator(), tab = "\t";
   
   // An array list to store the input data for each unique simulation
   private final List<SimulationData> input_data_for_simulations = new ArrayList<>();
@@ -102,10 +102,12 @@ public class FXMLMainWindowController
     
     if(input_data_for_simulations.isEmpty())
     {//no input data added yet  
+      clearDatasets.setDisable(true);
     }
     else
     {// a valid genome data file has been imported and at least one set of valid input data has been provided
       simTitledPane.setDisable(false);
+      clearDatasets.setDisable(false);
     }
     
     if(input_data_for_simulations == null && genome_data == null)
@@ -265,10 +267,11 @@ public class FXMLMainWindowController
     // Verify that a genome data file has been successfully imported
     if (genome_data != null && genome_data.getImportStatus()) 
     {
-      input_data_for_simulations.stream().parallel().map((current_simulation_input_dataset) -> new Thread(new Simulation(current_simulation_input_dataset))).forEach((thread) ->
+      for(SimulationData current_simulation_input_dataset:input_data_for_simulations)
       {
-        thread.start();
-      });
+        new Thread(new Simulation(current_simulation_input_dataset)).start();
+      }
+      
     } else// Genome data import was not successful
     {
       displayAlert("ALERT!","Failed to import genome data file, check that you have selected a valid genome data file.");
@@ -302,7 +305,7 @@ public class FXMLMainWindowController
         confirmation_contents.append("Newly selected Genome Data File: ").append(genome_data_file.getAbsoluteFile()).append(new_line).append(new_line).append("File contains the following header lines(s):").append(new_line);
      
         // Append the header lines to the message to be displayed, placing each on a new line
-        genome_data.getGetHaderLines().stream().forEach((String header_line) -> 
+        genome_data.getGetHeaderLines().stream().forEach((String header_line) -> 
         {
           confirmation_contents.append(header_line).append(new_line);
         });
@@ -320,6 +323,20 @@ public class FXMLMainWindowController
     
     this.validate = enableDisableInputFields();
   }//handleChangeGenomeDataFileButtonEvent  
+  
+  /** 
+   * Evaluated when the user selects the "Clear Datasets" button.
+   * 
+   * 
+   * 
+   */
+  @FXML
+  private void handleClearDatasetsEvent(ActionEvent event) 
+  {
+    input_data_for_simulations.clear();
+    outputTextArea.clear();
+    enableDisableInputFields();
+  }
   
   /**
    *
