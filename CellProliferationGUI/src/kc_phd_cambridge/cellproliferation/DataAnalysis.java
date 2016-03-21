@@ -46,7 +46,7 @@ public class DataAnalysis
   
   /**
    *
-   * @param first_results_file
+   * @param first_results_file the String value of the first results file !!!!!*&^&^%%
    * @param new_genome_data the string array of chromosome sizes required to perform fractional DNA synthesis calculations.
    * @param new_organism the string representation of the organism.
    * @param new_sex the integer value of the sex of the organism.
@@ -141,10 +141,12 @@ public class DataAnalysis
    
     // Calculate string of results to write to file
     List<String> final_generation_to_output = new ArrayList<>();
+    List<String> individual_distributions = new ArrayList<>();
     for(int lineage = 0; lineage < generation_percentages.length; lineage++)
     {// for each lineage
       final_generation_to_output.add("LINEAGE," + lineage);
-
+      individual_distributions.add("LINEAGE," + lineage);
+      
       generation_percentages[lineage][0] = new StringBuilder("0.0");//Set all generation 0 values to 0
       for(int generation = 0; generation < generation_percentages[lineage].length; generation++)
       {// for each generation in the current lineage
@@ -152,7 +154,8 @@ public class DataAnalysis
         String this_line = generation_percentages[lineage][generation].toString();
         String[] split_line = this_line.split(",");
         System.out.println("Line " + this_line + " Elements = " + split_line.length);
-        
+        individual_distributions.add("Generation," + generation);
+        individual_distributions.add("# of Cells," + split_line.length + "," + this_line);
         double percentage_label_accumalator = 0;
         for(String percentage:split_line)
         {// for each element in the split line
@@ -163,7 +166,7 @@ public class DataAnalysis
       }// for each generation in the current lineage
     }// for each lineage   
     writeToFile(final_generation_to_output, "Final Label Percentages - " + first_results_file + ".csv");
-    
+    writeToFile(individual_distributions, "Individual Cell Percentages - " + first_results_file + ".csv");
     /*TODO
     1. Calculate B, the toal number of bases in the genome
     2. Calculated L, the number of bases in the genome thats are labelled

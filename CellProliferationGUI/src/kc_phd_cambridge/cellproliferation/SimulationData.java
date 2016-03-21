@@ -107,6 +107,6 @@ public class SimulationData
   public String toString()
   {
     String sex_string = this.sex == 1 ? "Female" : "Male";
-    return "Organism=" + this.organism + ", Sex=" + sex_string + ", Init_Pop=" + this.initial_population_size + ", Sim_Duration=" + this.simulation_duration + ", Interval="+ this.time_interval + ", Haploid#=: " + haploid_number; 
+    return "Organism=" + this.organism + ", Sex=" + sex_string + ", Init_Pop=" + this.initial_population_size + ", Sim_Duration=" + this.simulation_duration + ", Interval="+ this.time_interval + ", Haploid#=" + haploid_number; 
   }// toString
 }// SimulationData

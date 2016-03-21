@@ -1,3 +1,5 @@
+Cell Id		Generation	Lineage		Percentage Labelled
+
 0		1		0		50.0
 4		1		0		50.0
 1		1		1		50.0
